@@ -1,0 +1,8 @@
+.results {
+    display: inline-block;
+    margin: 20px;
+}
+
+img {
+    max-height: 450px;
+}
