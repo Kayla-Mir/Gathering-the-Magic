@@ -32,9 +32,26 @@ function* addCard(action) {
     }
 }
 
+function* deleteCard(action) {
+    console.log('action.payload', action.payload);
+    try {
+        yield axios({
+            method: 'DELETE',
+            url: '/api/inventory',
+            data: action.payload
+        })
+        yield put({
+            type: 'FETCH_INVENTORY'
+        })
+    } catch (error) {
+        console.error('inventory DELETE request error', error)
+    }
+}
+
 function* inventorySaga() {
     yield takeEvery('FETCH_INVENTORY', getInventory);
     yield takeEvery('ADD_TO_INVENTORY', addCard);
+    yield takeEvery('DELETE_FROM_INVENTORY', deleteCard)
 }
 
 export default inventorySaga;

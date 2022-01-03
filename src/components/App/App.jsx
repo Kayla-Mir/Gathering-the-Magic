@@ -21,6 +21,7 @@ import LoginPage from '../LoginPage/LoginPage';
 import RegisterPage from '../RegisterPage/RegisterPage';
 import SearchPage from '../SearchPage/SearchPage';
 import InventoryPage from '../InventoryPage/InventoryPage';
+import DeckPage from '../DeckPage/DeckPage';
 
 import './App.css';
 
@@ -120,9 +121,14 @@ function App() {
             }
           </Route>
 
-          <Route path="/search">
+          <Route exact path="/search">
             <SearchPage />
           </Route>
+
+          <Route exact path="/deck">
+            <DeckPage />
+          </Route>
+
           {/* If none of the other routes matched, we will show a 404. */}
           <Route>
             <h1>404</h1>

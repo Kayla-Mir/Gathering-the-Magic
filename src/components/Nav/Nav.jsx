@@ -13,33 +13,44 @@ function Nav() {
         <h2 className="nav-title">Prime Solo Project</h2>
       </Link>
       <div>
+        {/* <Link className="navLink" to="/home">
+          Home
+        </Link> */}
+
         <Link className="navLink" to='/search'>
           Search
         </Link>
+
+        {user.id ?
+          <Link className="navLink" to="/deck">
+            Your Decks
+          </Link>
+          :
+          <Link className="navLink" to="/deck">
+            Make a Deck
+          </Link>
+        }
+        
         {/* If no user is logged in, show these links */}
         {!user.id &&
           // If there's no user, show login/registration links
           <Link className="navLink" to="/login">
-            Login / Register
+            Login
           </Link>
         }
 
         {/* If a user is logged in, show these links */}
         {user.id && (
           <>
-            <Link className="navLink" to="/user">
-              Home
-            </Link>
-
             <Link className="navLink" to="/inventory">
               Inventory
             </Link>
 
+            <LogOutButton className="navLink" />
+
             <Link className="navLink" to="/info">
               Info Page
             </Link>
-
-            <LogOutButton className="navLink" />
           </>
         )}
 

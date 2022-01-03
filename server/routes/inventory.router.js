@@ -45,7 +45,14 @@ router.post('/', rejectUnauthenticated, (req, res) => {
                 "legality",
                 "user_id"
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            VALUES 
+                (
+                    $1, $2, $3, 
+                    $4, $5, $6, 
+                    $7, $8, $9, 
+                    $10, $11, 
+                    $12, $13
+                )
     `;
     const sqlValues = [
         card.img_url,
@@ -71,5 +78,21 @@ router.post('/', rejectUnauthenticated, (req, res) => {
             res.sendStatus(500);
         })
 })
+
+router.delete('/', rejectUnauthenticated, (req, res) => {
+    const cardToDelete = req.body.id
+    const sqlText = `
+        DELETE FROM "inventory"
+	        WHERE "id"=$1;
+    `;
+    pool.query(sqlText, [cardToDelete])
+        .then((dbRes) => {
+            res.send(dbRes.rows);
+        })
+        .catch((dbErr) => {
+            console.error('get db error', dbErr);
+            res.sendStatus(500);
+        })
+});
 
 module.exports = router;
