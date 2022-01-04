@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import AwesomeComponent from "../Loading/Loading";
 
 import DeckItem from "../DeckItem/DeckItem";
 
@@ -23,7 +24,7 @@ function DeckView() {
     return (
         <div>
             {/* null check for if details hasn't been populated with data yet */}
-            {details[0]?.length != 0 ?
+            {details?.length != 0 ?
                 <>
                     <h3>{details?.deck_name}</h3>
                     <h4>Cards: {details?.deck_contents?.data?.length}</h4>
@@ -34,8 +35,13 @@ function DeckView() {
                     })}
                 </>
                 :
-                <></>
+                <>
+                    <AwesomeComponent />
+                </>
             }
+                {/* <>
+                    <AwesomeComponent />
+                </> */}
         </div>
     )
 }
