@@ -48,42 +48,6 @@ function InventoryItem({ item }) {
         setFrontSide(!frontSide);
     }
 
-    // const addToInventory = () => {
-    //     let cardToAdd = {
-    //         img_url: item.image_uris?.normal ?? item.card_faces[0]?.image_uris?.normal,
-    //         img_back_url: null,
-    //         name: item.name,
-    //         toughness: item.toughness ?? null,
-    //         toughness_back: null,
-    //         power: item.power ?? null,
-    //         power_back: null,
-    //         cmc: item.cmc,
-    //         set: item.set,
-    //         color_identity: item.color_identity,
-    //         type_line: item.type_line,
-    //         legality: item.legalities.commander
-    //     }
-    //     if (!item.image_uris) {
-    //         cardToAdd = {
-    //             ...cardToAdd, 
-    //             img_back_url: item.card_faces[1].image_uris.normal,
-    //         }
-    //     }
-    //     if (item.card_faces) {
-    //         cardToAdd = {
-    //             ...cardToAdd,
-    //             toughness: item.card_faces[0]?.toughness,
-    //             toughness_back: item.card_faces[1]?.toughness,
-    //             power: item.card_faces[0]?.power,
-    //             power_back: item.card_faces[1]?.power,
-    //         }
-    //     }
-    //     dispatch({
-    //         type: 'ADD_TO_INVENTORY',
-    //         payload: cardToAdd
-    //     })
-    // }
-
     const deleteFromInventory = () => {
         dispatch({
             type: 'DELETE_FROM_INVENTORY',

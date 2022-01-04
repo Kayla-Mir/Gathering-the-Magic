@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import InventoryItem from "../InventoryItem/InventoryItem";
 
 function InventoryPage() {
     const dispatch = useDispatch();
     const inventory = useSelector((store) => store.setInventory);
-
-    console.log('inventory', inventory);
 
     useEffect(() => {
         dispatch({

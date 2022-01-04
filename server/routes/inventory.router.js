@@ -13,7 +13,7 @@ router.get('/', rejectUnauthenticated, (req, res) => {
     // Send back user object from the session (previously queried from the database)
     const sqlText = `
         SELECT * FROM "inventory"
-	        WHERE "user_id"=$1;
+            WHERE "user_id"=$1;
     `;
     pool.query(sqlText, [req.user.id])
         .then((dbRes) => {

@@ -7,6 +7,7 @@ function LogOutButton(props) {
   const clearUserFields = () => {
     dispatch({ type: 'LOGOUT' });
     dispatch({ type: 'CLEAR_SEARCH' });
+    dispatch({ type: 'CLEAR_DECK' });
   }
 
   return (

@@ -22,6 +22,7 @@ import RegisterPage from '../RegisterPage/RegisterPage';
 import SearchPage from '../SearchPage/SearchPage';
 import InventoryPage from '../InventoryPage/InventoryPage';
 import DeckPage from '../DeckPage/DeckPage';
+import DeckView from '../DeckView/DeckView';
 
 import './App.css';
 
@@ -77,6 +78,13 @@ function App() {
             path="/info"
           >
             <InfoPage />
+          </ProtectedRoute>
+
+          <ProtectedRoute
+            // logged in shows DeckView else shows LoginPage
+            exact path="/deckView/:id"
+          >
+            <DeckView />
           </ProtectedRoute>
 
           <Route
