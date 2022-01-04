@@ -20,7 +20,8 @@ function DeckPage () {
             {decks?.length > 0 && decks?.map((deck) => {
                 return (
                     <div key={deck.id}>
-                        <p>{deck.deck_name}</p>
+                        <h3>{deck.deck_name}</h3>
+                        <h4>Cards: {deck.deck_contents.length}</h4>
                         <img 
                             onClick={() => history.push(`/deckView/${deck.id}`)} 
                             src={deck.deck_img} 

@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
+import DeckItem from "../DeckItem/DeckItem";
+
 function DeckView() {
     const params = useParams();
     const dispatch = useDispatch();
@@ -23,19 +25,13 @@ function DeckView() {
             {/* null check for if details hasn't been populated with data yet */}
             {details[0]?.length != 0 ?
                 <>
-                    <h3>{details[0]?.deck_name}</h3>
-                    <img src={details[0]?.deck_img} alt={details[0]?.commander} />
+                    <h3>{details?.deck_name}</h3>
+                    <h4>Cards: {details?.deck_contents?.data?.length}</h4>
+                    <img src={details?.deck_img} alt={details?.commander} />
                     <h4>Contents:</h4>
-                    {details[0]?.deck_contents?.map((item, i) => {
-                        return <p key={i}>{item}</p>
+                    {details?.deck_contents?.data?.map((item, i) => {
+                        return <DeckItem key={i} item={item} />
                     })}
-                    {/* <button
-                        id="backHomeButton"
-                        onClick={() => history.push('/')}
-                        variant="contained"
-                    >
-                        Back To List
-                    </button> */}
                 </>
                 :
                 <></>

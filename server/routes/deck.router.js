@@ -26,9 +26,10 @@ router.get('/', rejectUnauthenticated, (req, res) => {
         })
 });
 
-const queryObject = {
+let queryObject = {
     "identifiers": []
 }
+
 const buildCardObject = (cardName) => {
     const cardObject = { name: cardName };
     queryObject.identifiers.push(cardObject);
@@ -38,7 +39,7 @@ const buildCardObject = (cardName) => {
 router.get('/:id', rejectUnauthenticated, (req, res) => {
     // Send back user object from the session (previously queried from the database)
     const sqlText = `
-        SELECT * FROM "user_deck_test"
+        SELECT * FROM "user_decks"
 	        WHERE "user_id"=$1
             AND "id"=$2;
     `;
@@ -50,19 +51,21 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
                 url: `https://api.scryfall.com/cards/collection`,
                 data: queryObject
             }).then((apiRes) => {
-                console.log('API response', apiRes.data)
+                queryObject = {
+                    "identifiers": []
+                }
                 res.send({
                     ...dbRes.rows[0],
                     deck_contents: apiRes.data
-                })
+                });
             }).catch((apiErr) => {
                 console.error('GET api error', apiErr);
-            })
+            });
         })
         .catch((dbErr) => {
             console.error('get db error', dbErr);
             res.sendStatus(500);
-        })
+        });
 });
 
 // router.post('/', rejectUnauthenticated, (req, res) => {

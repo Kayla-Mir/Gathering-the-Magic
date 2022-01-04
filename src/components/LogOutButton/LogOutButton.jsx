@@ -8,6 +8,7 @@ function LogOutButton(props) {
     dispatch({ type: 'LOGOUT' });
     dispatch({ type: 'CLEAR_SEARCH' });
     dispatch({ type: 'CLEAR_DECK' });
+    dispatch({ type: 'CLEAR_DETAILS' });
   }
 
   return (

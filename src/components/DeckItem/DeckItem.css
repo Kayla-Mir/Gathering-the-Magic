@@ -1,0 +1,8 @@
+.deckResults {
+    display: inline-block;
+    margin: 5px;
+}
+
+img {
+    max-height: 350px;
+}
