@@ -30,8 +30,8 @@ let queryObject = {
     "identifiers": []
 }
 
-const buildCardObject = (cardName) => {
-    const cardObject = { name: cardName };
+const buildCardObject = (cardId) => {
+    const cardObject = { id: cardId };
     queryObject.identifiers.push(cardObject);
 }
 
@@ -41,26 +41,30 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         SELECT * FROM "user_decks"
 	        WHERE "user_id"=$1
-            AND "id"=$2;
+                AND "id"=$2;
     `;
     pool.query(sqlText, [req.user.id, req.params.id])
         .then((dbRes) => {
-            dbRes.rows[0].deck_contents.map((item) => buildCardObject(item));
-            axios({
-                method: 'POST',
-                url: `https://api.scryfall.com/cards/collection`,
-                data: queryObject
-            }).then((apiRes) => {
-                queryObject = {
-                    "identifiers": []
-                }
-                res.send({
-                    ...dbRes.rows[0],
-                    deck_contents: apiRes.data
+            if (dbRes.rows[0].deck_contents != null) {
+                dbRes.rows[0].deck_contents.map((item) => buildCardObject(item));
+                axios({
+                    method: 'POST',
+                    url: `https://api.scryfall.com/cards/collection`,
+                    data: queryObject
+                }).then((apiRes) => {
+                    queryObject = {
+                        "identifiers": []
+                    }
+                    res.send({
+                        ...dbRes.rows[0],
+                        deck_contents: apiRes.data
+                    });
+                }).catch((apiErr) => {
+                    console.error('GET api error', apiErr);
                 });
-            }).catch((apiErr) => {
-                console.error('GET api error', apiErr);
-            });
+            } else {
+                res.send(dbRes.rows[0]);
+            }
         })
         .catch((dbErr) => {
             console.error('get db error', dbErr);
@@ -68,59 +72,144 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
         });
 });
 
-// router.post('/', rejectUnauthenticated, (req, res) => {
-//     console.log('req.user', req.user)
-//     const card = req.body;
-//     const sqlText = `
-//         INSERT INTO "inventory" 
-//             (
-//                 "img_url",
-//                 "img_back_url",
-//                 "name", 
-//                 "toughness",
-//                 "toughness_back",
-//                 "power",
-//                 "power_back",
-//                 "cmc", 
-//                 "set",
-//                 "color_identity",
-//                 "type_line",
-//                 "legality",
-//                 "user_id"
-//             )
-//             VALUES 
-//                 (
-//                     $1, $2, $3, 
-//                     $4, $5, $6, 
-//                     $7, $8, $9, 
-//                     $10, $11, 
-//                     $12, $13
-//                 )
-//     `;
-//     const sqlValues = [
-//         card.img_url,
-//         card.img_back_url,
-//         card.name,
-//         card.toughness,
-//         card.toughness_back,
-//         card.power,
-//         card.power_back,
-//         card.cmc,
-//         card.set,
-//         card.color_identity,
-//         card.type_line,
-//         card.legality,
-//         req.user.id
-//     ]
-//     pool.query(sqlText, sqlValues)
-//         .then((dbRes) => {
-//             res.sendStatus(201);
-//         })
-//         .catch((dbErr) => {
-//             console.error('post db error', dbErr);
-//             res.sendStatus(500);
-//         })
-// })
+router.post('/', rejectUnauthenticated, (req, res) => {
+    const cardPlaceholder = 'filler-card.png'
+    const sqlText = `
+        INSERT INTO "user_decks" ( "user_id", "deck_name", "deck_img" )
+            VALUES ( $1, $2, $3 )
+    `;
+    const sqlValues = [
+        req.user.id,
+        req.body.deck_name,
+        cardPlaceholder
+    ]
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            res.sendStatus(201);
+        })
+        .catch((dbErr) => {
+            console.error('post db error', dbErr);
+            res.sendStatus(500);
+        })
+})
+
+router.put('/contents', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        UPDATE "user_decks"
+            SET "deck_contents" = array_append("deck_contents", $1)
+            WHERE "user_id"=$2
+                AND "id"=$3;
+    `;
+    const sqlValues = [
+        req.body.cardToAdd.id,
+        req.user.id,
+        req.body.deck_id
+    ]
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            const newQuery = `
+                SELECT "id" FROM "user_decks"
+                    WHERE "user_id"=$1
+                        AND "id"=$2
+            `;
+            const newValues = [
+                req.user.id,
+                req.body.deck_id
+            ]
+            pool.query(newQuery, newValues)
+                .then((dbRes) => {
+                    res.send(dbRes.rows[0])
+                })
+                .catch((dbErr) => {
+                    console.error('2nd put contents db error', dbErr);
+                    res.sendStatus(500);
+                })
+        })
+        .catch((dbErr) => {
+            console.error('put contents db error', dbErr);
+            res.sendStatus(500);
+        })
+})
+
+router.put('/name', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        UPDATE "user_decks"
+            SET "deck_name"=$1
+            WHERE "user_id"=$2
+                AND "id"=$3;
+    `;
+    const sqlValues = [
+        req.body.deck_name,
+        req.user.id,
+        req.body.deck_id
+    ]
+    console.log('sqlValues', sqlValues);
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            const newQuery = `
+                SELECT "id" FROM "user_decks"
+                    WHERE "user_id"=$1
+                        AND "id"=$2
+            `;
+            const newValues = [
+                req.user.id,
+                req.body.deck_id
+            ]
+            pool.query(newQuery, newValues)
+                .then((dbRes) => {
+                    res.send(dbRes.rows[0])
+                })
+                .catch((dbErr) => {
+                    console.error('2nd put name db error', dbErr);
+                    res.sendStatus(500);
+                })
+        })
+        .catch((dbErr) => {
+            console.error('put name db error', dbErr);
+            res.sendStatus(500);
+        })
+})
+
+router.put('/commander', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        UPDATE "user_decks"
+            SET "commander"=$1,
+                "deck_img"=$2
+            WHERE "user_id"=$3
+                AND "id"=$4;
+    `;
+    const sqlValues = [
+        req.body.commander,
+        req.body.deck_img,
+        req.user.id,
+        req.body.deck_id
+    ]
+    console.log('sqlValues', sqlValues);
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            const newQuery = `
+                SELECT "id" FROM "user_decks"
+                    WHERE "user_id"=$1
+                    AND "id"=$2
+            `;
+            const newValues = [
+                req.user.id,
+                req.body.deck_id
+            ]
+            pool.query(newQuery, newValues)
+                .then((dbRes) => {
+                    res.send(dbRes.rows[0])
+                })
+                .catch((dbErr) => {
+                    console.error('2nd put commander db error', dbErr);
+                    res.sendStatus(500);
+                })
+        })
+        .catch((dbErr) => {
+            console.error('put commander db error', dbErr);
+            res.sendStatus(500);
+        })
+})
 
 // router.delete('/', rejectUnauthenticated, (req, res) => {
 //     const cardToDelete = req.body.id

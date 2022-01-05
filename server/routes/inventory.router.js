@@ -43,7 +43,8 @@ router.post('/', rejectUnauthenticated, (req, res) => {
                 "color_identity",
                 "type_line",
                 "legality",
-                "user_id"
+                "user_id",
+                "scryfall_id"
             )
             VALUES 
                 (
@@ -51,7 +52,7 @@ router.post('/', rejectUnauthenticated, (req, res) => {
                     $4, $5, $6, 
                     $7, $8, $9, 
                     $10, $11, 
-                    $12, $13
+                    $12, $13, $14
                 )
     `;
     const sqlValues = [
@@ -67,7 +68,8 @@ router.post('/', rejectUnauthenticated, (req, res) => {
         card.color_identity,
         card.type_line,
         card.legality,
-        req.user.id
+        req.user.id,
+        card.scryfall_id
     ]
     pool.query(sqlText, sqlValues)
         .then((dbRes) => {

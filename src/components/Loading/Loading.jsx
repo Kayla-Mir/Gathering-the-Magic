@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashLoader } from 'react-spinners';
 
-class AwesomeComponent extends React.Component {
+class LoadingComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,4 +22,4 @@ class AwesomeComponent extends React.Component {
   }
 }
 
-export default AwesomeComponent;
+export default LoadingComponent;

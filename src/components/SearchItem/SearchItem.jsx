@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
+
 import './SearchItem.css'
 
 function SearchItem({ item }) {
@@ -25,7 +26,8 @@ function SearchItem({ item }) {
             set: item.set,
             color_identity: item.color_identity,
             type_line: item.type_line,
-            legality: item.legalities.commander
+            legality: item.legalities.commander,
+            scryfall_id: item.id,
         }
         if (!item.image_uris) {
             cardToAdd = {

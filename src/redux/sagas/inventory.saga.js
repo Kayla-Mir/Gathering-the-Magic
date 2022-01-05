@@ -24,10 +24,22 @@ function* addCard(action) {
             url: '/api/inventory',
             data: action.payload
         })
+        swal({
+            title: "Success!",
+            text: `You added ${action.payload.name} to your inventory!`,
+            icon: "success",
+            button: "OK",
+          });
         yield put({
             type: 'FETCH_INVENTORY'
         })
     } catch (error) {
+        swal({
+            title: "Sorry!",
+            text: `${action.payload.name} could not be added to your inventory at this time.`,
+            icon: "error",
+            button: "OK",
+          });
         console.error('inventory POST request error', error)
     }
 }

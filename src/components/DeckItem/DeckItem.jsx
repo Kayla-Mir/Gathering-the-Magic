@@ -3,6 +3,10 @@ import './DeckItem.css';
 
 function DeckItem({item}) {
     const [frontSide, setFrontSide] = useState(true);
+
+    const flipImage = () => {
+        setFrontSide(!frontSide);
+    }
     
     return (
         <div className="deckResults">
