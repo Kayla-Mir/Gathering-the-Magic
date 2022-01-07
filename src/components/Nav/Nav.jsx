@@ -9,15 +9,13 @@ function Nav() {
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
-  const clearDetails = () => {
-    dispatch({
-      type: 'CLEAR_DETAILS'
-    })
+  const clearUserFields = () => {
+    dispatch({ type: 'CLEAR_SEARCH' });
   }
 
   return (
     <div className="nav">
-      <Link to="/home">
+      <Link onClick={clearUserFields} to="/home">
         <h2 className="nav-title">Prime Solo Project</h2>
       </Link>
       <div>
@@ -25,16 +23,16 @@ function Nav() {
           Home
         </Link> */}
 
-        <Link className="navLink" to='/search'>
+        <Link onClick={clearUserFields} className="navLink" to='/search'>
           Search
         </Link>
 
         {user.id ?
-          <Link onClick={clearDetails} className="navLink" to="/deck">
+          <Link onClick={clearUserFields} className="navLink" to="/deck">
             Your Decks
           </Link>
           :
-          <Link className="navLink" to="/deck">
+          <Link onClick={clearUserFields} className="navLink" to="/deck">
             Make a Deck
           </Link>
         }
@@ -42,7 +40,7 @@ function Nav() {
         {/* If no user is logged in, show these links */}
         {!user.id &&
           // If there's no user, show login/registration links
-          <Link className="navLink" to="/login">
+          <Link onClick={clearUserFields} className="navLink" to="/login">
             Login
           </Link>
         }
@@ -50,19 +48,19 @@ function Nav() {
         {/* If a user is logged in, show these links */}
         {user.id && (
           <>
-            <Link className="navLink" to="/inventory">
+            <Link onClick={clearUserFields} className="navLink" to="/inventory">
               Inventory
             </Link>
 
             <LogOutButton className="navLink" />
 
-            <Link className="navLink" to="/info">
+            <Link onClick={clearUserFields} className="navLink" to="/info">
               Info Page
             </Link>
           </>
         )}
 
-        <Link className="navLink" to="/about">
+        <Link onClick={clearUserFields} className="navLink" to="/about">
           About
         </Link>
       </div>

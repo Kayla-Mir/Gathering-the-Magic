@@ -3,8 +3,6 @@ import { useDispatch } from "react-redux";
 
 //modal settings
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 // hover settings
 import { styled } from '@mui/material/styles';

@@ -96,30 +96,31 @@ function* updateDeckCommander(action) {
     }
 }
 
-function* deleteFromInventory(action) {
+function* deleteFromDeck(action) {
     console.log('action.payload', action.payload);
-    // try {
-    //     yield axios({
-    //         method: 'DELETE',
-    //         url: '/api/deck',
-    //         data: action.payload
-    //     })
-    //     yield put({
-    //         type: 'FETCH_DECK'
-    //     })
-    // } catch (error) {
-    //     console.error('inventory DELETE request error', error)
-    // }
+    try {
+        const response = yield axios({
+            method: 'DELETE',
+            url: '/api/deck',
+            data: action.payload
+        })
+        yield put({
+            type: 'GET_DETAILS',
+            payload: response.data.id
+        })
+    } catch (error) {
+        console.error('inventory DELETE request error', error)
+    }
 }
 
 function* deckSaga() {
     yield takeEvery('FETCH_DECK', getDeck);
-    yield takeEvery('DELETE_DECK', deleteFromInventory);
     yield takeEvery('GET_DETAILS', getDetails);
     yield takeEvery('NEW_DECK', createDeck);
     yield takeEvery('UPDATE_DECK_CONTENTS', updateDeckContents);
     yield takeEvery('UPDATE_DECK_NAME', updateDeckName);
     yield takeEvery('UPDATE_DECK_COMMANDER', updateDeckCommander);
+    yield takeEvery('DELETE_FROM_DECK', deleteFromDeck);
 }
 
 export default deckSaga;

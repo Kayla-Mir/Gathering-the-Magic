@@ -3,6 +3,30 @@
     margin: 5px;
 }
 
-img {
+.deckImgList {
     max-height: 350px;
+}
+
+.deckImg {
+    max-height: 450px;
+    margin-left: 40px;
+}
+
+.deckImgName {
+    text-align: center;
+    margin: auto;
+}
+
+.cardDetails {
+    margin: 10px;
+}
+
+.detailsContainer {
+    text-align: left;
+    margin-top: 100px;
+    margin-left: 40px;
+}
+
+.modalDltBtn {
+    justify-self: center;
 }

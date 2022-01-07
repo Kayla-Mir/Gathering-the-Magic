@@ -1,0 +1,12 @@
+.deckContents {
+    display: inline-block;
+    margin: 40px;
+}
+
+.deckSearch {
+    display: inline-block;
+}
+
+.commanderImg {
+    max-height: 375px;
+}

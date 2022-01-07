@@ -33,6 +33,8 @@ function App() {
 
   useEffect(() => {
     dispatch({ type: 'FETCH_USER' });
+    dispatch({ type: 'FETCH_INVENTORY' });
+    dispatch({ type: 'FETCH_DECK' });
   }, [dispatch]);
 
   return (

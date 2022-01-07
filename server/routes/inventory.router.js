@@ -25,6 +25,31 @@ router.get('/', rejectUnauthenticated, (req, res) => {
         })
 });
 
+// Handles Ajax request for user information if user is authenticated
+router.get('/:id', rejectUnauthenticated, (req, res) => {
+    // Send back user object from the session (previously queried from the database)
+    const sqlText = `
+        SELECT * FROM "inventory"
+            WHERE "user_id"=$1
+                AND "scryfall_id"=$2;
+    `;
+    const sqlValues = [
+        req.user.id,
+        req.params.id
+    ]
+    console.log('sqlValues', sqlValues)
+    // the following is not working and i dont know why
+    pool.query(sqlText, [req.user.id, req.params.id])
+        .then((dbRes) => {
+            console.log('dbRes******', dbRes.rows);
+            res.send(dbRes.rows);
+        })
+        .catch((dbErr) => {
+            console.error('get db error', dbErr);
+            res.sendStatus(500);
+        })
+});
+
 router.post('/', rejectUnauthenticated, (req, res) => {
     console.log('req.user', req.user)
     const card = req.body;

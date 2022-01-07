@@ -9,15 +9,16 @@ const userStrategy = require('../strategies/user.strategy');
 
 const router = express.Router();
 
-// Handles Ajax request for user information if user is authenticated
+// get all user decks based on user_id
 router.get('/', rejectUnauthenticated, (req, res) => {
-    // Send back user object from the session (previously queried from the database)
     const sqlText = `
         SELECT * FROM "user_decks"
 	        WHERE "user_id"=$1;
     `;
     pool.query(sqlText, [req.user.id])
         .then((dbRes) => {
+            console.log('dbRes********', dbRes.rows);
+
             res.send(dbRes.rows);
         })
         .catch((dbErr) => {
@@ -26,18 +27,18 @@ router.get('/', rejectUnauthenticated, (req, res) => {
         })
 });
 
+// object builder for get by id
 let queryObject = {
     "identifiers": []
 }
-
+//function to build above query
 const buildCardObject = (cardId) => {
     const cardObject = { id: cardId };
     queryObject.identifiers.push(cardObject);
 }
 
-// Handles Ajax request for user information if user is authenticated
+// get single deck based on its id
 router.get('/:id', rejectUnauthenticated, (req, res) => {
-    // Send back user object from the session (previously queried from the database)
     const sqlText = `
         SELECT * FROM "user_decks"
 	        WHERE "user_id"=$1
@@ -45,6 +46,7 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
     `;
     pool.query(sqlText, [req.user.id, req.params.id])
         .then((dbRes) => {
+            // sends an axios request with the ids of the cards from the DB
             if (dbRes.rows[0].deck_contents != null) {
                 dbRes.rows[0].deck_contents.map((item) => buildCardObject(item));
                 axios({
@@ -211,20 +213,69 @@ router.put('/commander', rejectUnauthenticated, (req, res) => {
         })
 })
 
-// router.delete('/', rejectUnauthenticated, (req, res) => {
-//     const cardToDelete = req.body.id
-//     const sqlText = `
-//         DELETE FROM "inventory"
-// 	        WHERE "id"=$1;
-//     `;
-//     pool.query(sqlText, [cardToDelete])
-//         .then((dbRes) => {
-//             res.send(dbRes.rows);
-//         })
-//         .catch((dbErr) => {
-//             console.error('get db error', dbErr);
-//             res.sendStatus(500);
-//         })
-// });
+router.delete('/', rejectUnauthenticated, (req, res) => {
+    const cardToDelete = req.body.cardToDelete.id;
+    const userId = req.user.id;
+    const deckId = req.body.deck_id;
+    const sqlText = `
+        SELECT "deck_contents" FROM "user_decks"
+            WHERE "user_id"=$1
+                AND "id"=$2;
+    `;
+    const sqlValues = [
+        userId,
+        deckId
+    ]
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            // update deck_contents after removing single card
+            const updatedDeck = dbRes.rows[0].deck_contents
+            const cardIndex = updatedDeck.indexOf(cardToDelete);
+            if (cardIndex === -1) {
+                console.error('could not find card to delete in deck_contents')
+            } else {
+                updatedDeck.splice(cardIndex, 1);
+                const setDeckQuery = `
+                    UPDATE "user_decks"
+                        SET "deck_contents"=$1
+                        WHERE "user_id"=$2
+                            AND "id"=$3;
+                `;
+                const setDeckValues = [
+                    updatedDeck,
+                    userId,
+                    deckId
+                ]
+                pool.query(setDeckQuery, setDeckValues)
+                    .then((dbRes) => {
+                        const newQuery = `
+                            SELECT "id" FROM "user_decks"
+                                WHERE "user_id"=$1
+                                AND "id"=$2
+                        `;
+                        const newValues = [
+                            userId,
+                            deckId
+                        ]
+                        pool.query(newQuery, newValues)
+                            .then((dbRes) => {
+                                res.send(dbRes.rows[0])
+                            })
+                            .catch((dbErr) => {
+                                console.error('3rd delete db error', dbErr);
+                                res.sendStatus(500);
+                            })
+                    })
+                    .catch((dbErr) => {
+                        console.error('2nd delete db error', dbErr);
+                        res.sendStatus(500);
+                    })
+            }
+        })
+        .catch((dbErr) => {
+            console.error('delete db error', dbErr);
+            res.sendStatus(500);
+        })
+});
 
 module.exports = router;
