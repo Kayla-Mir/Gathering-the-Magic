@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchItem from "../SearchItem/SearchItem";
+import './SearchPage.css'
 
 function SearchPage() {
     const dispatch = useDispatch();
@@ -17,7 +18,7 @@ function SearchPage() {
     }
 
     return (
-        <div>
+        <div className="searchDiv">
             <div>
                 <h2>Search for Magic Cards!</h2>
                 <input

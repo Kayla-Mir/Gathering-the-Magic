@@ -47,7 +47,7 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
     pool.query(sqlText, [req.user.id, req.params.id])
         .then((dbRes) => {
             // sends an axios request with the ids of the cards from the DB
-            if (dbRes.rows[0].deck_contents != null) {
+            if (dbRes.rows[0].deck_contents != null && dbRes.rows[0].deck_contents.length != 0) {
                 dbRes.rows[0].deck_contents.map((item) => buildCardObject(item));
                 axios({
                     method: 'POST',
@@ -186,7 +186,6 @@ router.put('/commander', rejectUnauthenticated, (req, res) => {
         req.user.id,
         req.body.deck_id
     ]
-    console.log('sqlValues', sqlValues);
     pool.query(sqlText, sqlValues)
         .then((dbRes) => {
             const newQuery = `
@@ -274,6 +273,30 @@ router.delete('/', rejectUnauthenticated, (req, res) => {
         })
         .catch((dbErr) => {
             console.error('delete db error', dbErr);
+            res.sendStatus(500);
+        })
+});
+
+router.delete('/:id', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        DELETE FROM "user_decks"
+	        WHERE "user_id"=$1
+            AND "id"=$2;
+    `;
+    const sqlValues = [
+        req.user.id,
+        req.params.id
+    ]
+    console.log('sqlValues', sqlValues);
+    
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            console.log('dbRes********', dbRes.rows);
+
+            res.send(dbRes.rows);
+        })
+        .catch((dbErr) => {
+            console.error('get db error', dbErr);
             res.sendStatus(500);
         })
 });

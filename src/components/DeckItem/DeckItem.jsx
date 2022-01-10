@@ -4,7 +4,7 @@ import './DeckItem.css';
 //modal settings
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 // grid settings
@@ -38,6 +38,7 @@ const Item = styled(Paper)(({ theme }) => ({
 function DeckItem({ item }) {
     const dispatch = useDispatch();
     const params = useParams();
+    const inventory = useSelector((store) => store.setInventory);
     const [frontSide, setFrontSide] = useState(true);
 
     // modal settings
@@ -45,10 +46,7 @@ function DeckItem({ item }) {
     const handleOpen = () => {
         console.log('cardToCheckId', item.id)
         setOpen(true);
-        dispatch({
-            type: 'CHECK_INVENTORY',
-            payload: item.id
-        })
+        // call check inventory function
     };
     const handleClose = () => {
         setOpen(false);
@@ -69,9 +67,25 @@ function DeckItem({ item }) {
         handleClose();
     }
 
+    const checkInventory = () => {
+        // loop through inventory reducer
+            // at each point check object key of scryfall id vs id of modal card
+            // then store every time the id matches in a variable
+            // then return that variable after done looping
+        let count = 0;
+        inventory.map((card) => {
+            if (card.scryfall_id === item.id) {
+                count += 1;
+            }
+        })
+        return (count)
+    }
+
+    console.log('item', item);
+
     return (
         <>
-            <div className="deckResults">
+            <div className={item.legalities.commander === 'legal' ? "deckResults" : "illegalCard"}>
                 {!item.image_uris ?
                     <>
                         {frontSide ?
@@ -119,10 +133,21 @@ function DeckItem({ item }) {
                             </Grid>
                             <Grid item xs={8}>
                                 <div className="detailsContainer">
-                                    <h5 className="cardDetails">Owned: <span style={{ color: 'green' }}>Placeholder</span></h5>
+                                    <h5 className="cardDetails">Owned: 
+                                        {checkInventory() > 0 ?  
+                                        <span style={{ color: 'green' }}> {checkInventory()}</span> 
+                                        :
+                                        <span style={{ color: 'red' }}> {checkInventory()}</span>
+                                        }</h5>
                                     <h5 className="cardDetails">Type: {item.type_line}</h5>
                                     <h5 className="cardDetails">Set: {item.set_name}</h5>
-                                    <h5 className="cardDetails">Commander Legality: {item.legalities.commander}</h5>
+                                    <h5 className="cardDetails">Commander Legality: 
+                                        {item.legalities.commander === 'legal' ?
+                                            <span> {item.legalities.commander}</span>
+                                            :
+                                            <span style={{ color: 'red' }}> {item.legalities.commander.replace(/_/g, " ")}</span>
+                                        }
+                                    </h5>
                                     <h5 className="cardDetails">Prices:
                                         <p className="cardDetails">Normal: ${item.prices.usd !== null ? item.prices.usd : '---'}</p>
                                         <p className="cardDetails">Foil: ${item.prices.usd_foil !== null ? item.prices.usd_foil : '---'}</p>

@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import swal from 'sweetalert';
+// imported components
 import LoadingComponent from "../Loading/Loading";
-
-import './DeckView.css';
 import DeckItem from "../DeckItem/DeckItem";
 import DeckSearchItem from "../DeckSearchItem/DeckSearchItem";
-
-// modal imports
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-
+// imported styles
+import './DeckView.css';
 // dialog imports
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -22,67 +20,50 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '80%',
-    height: 'auto',
-    textAlign: 'center',
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-};
-
 function DeckView() {
     const params = useParams();
     const dispatch = useDispatch();
+    const history = useHistory();
+    // imported stores
     const details = useSelector((store) => store.setDetails);
     const searchResult = useSelector((store) => store.setSearch);
-
     // dialog modal settings
     const [open, setOpen] = useState(false);
     const [scroll, setScroll] = useState('paper');
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
+    // handles dialog open 
     const handleClickOpen = (scrollType) => () => {
         setOpen(true);
         setScroll(scrollType);
     };
-
+    //handles dialog close
     const handleClose = () => {
         setOpen(false);
     };
-
-    // const handleOpen = () => setOpen(true);
-    // const handleClose = () => setOpen(false);
-
+    // pieces of state for search, edit mode, and updating deckName
     const [searchValue, setSearchValue] = useState('');
     const [editMode, setEditMode] = useState(false);
-
-    const [deckName, setDeckName] = useState(details?.deck_name);
-
-    console.log('details', details);
-
+    const [deckName, setDeckName] = useState('');
+    
+    // gets details based on params
     const getDetails = () => {
         dispatch({
             type: 'GET_DETAILS',
             payload: params.id
         })
     }
-
+    //page load gets the details
     useEffect(() => {
         // handleRefresh(),
         getDetails();
     }, [params.id])
 
+    // handles edit mode for the name of the deck
     const handleEditMode = () => {
         setEditMode(!editMode);
+        setDeckName(details.deck_name);
     }
 
+    // sends a search dispatch to the API and clears the input field after
     const sendSearch = () => {
         dispatch({
             type: 'SEND_SEARCH',
@@ -91,6 +72,7 @@ function DeckView() {
         setSearchValue('');
     }
 
+    // dispatch that updates the deck name
     const updateDeck = () => {
         dispatch({
             type: 'UPDATE_DECK_NAME',
@@ -100,6 +82,46 @@ function DeckView() {
             }
         })
         setEditMode(!editMode);
+    }
+
+    // handles deleting the deck, clears the details and deck reducers, pushes to deck page
+    const deleteDeck = () => {
+        console.log(details.deck_name);
+        swal({
+            title: "Warning!",
+            text: `Are you sure you want to delete ${details.deck_name}?`,
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                swal(`${details.deck_name} has been deleted.`, {
+                    icon: "success",
+                });
+                dispatch({
+                    type: 'DELETE_DECK',
+                    payload: Number(params.id)
+                })
+                dispatch({ type: 'CLEAR_DECK' });
+                dispatch({ type: 'CLEAR_DETAILS' });
+                history.push('/deck');
+            } else {
+                swal(`${details.deck_name} was not deleted.`)
+            }
+        });
+    }
+
+    // conditionally renders the card count based on various factors
+    const renderCardCount = () => {
+        if (details?.commander && details?.deck_contents?.data?.length > 0) {
+            return details?.deck_contents?.data?.length + 1;
+        } else if (details?.commander && details?.deck_contents?.length === 0) {
+            return 1;
+        } else if (!details?.commander && details?.deck_contents?.data?.length > 0) {
+            return details.deck_contents.data.length;
+        } else {
+            return 0;
+        }
     }
 
     return (
@@ -114,7 +136,7 @@ function DeckView() {
                                 <>
                                     <input
                                         value={deckName}
-                                        placeholder="Deck Name"
+                                        placeholder={details.deck_name}
                                         onChange={(event) => setDeckName(event.target.value)}
                                     />
                                     <button onClick={updateDeck}>Save</button>
@@ -123,11 +145,13 @@ function DeckView() {
                                 :
                                 <>
                                     <button onClick={handleEditMode}>Edit</button>
+                                    <button onClick={deleteDeck}>Delete Deck</button>
                                 </>
                             }
-                            <h4>Cards: {details?.deck_contents?.data?.length + 1 || 0}</h4>
+                            <h4>Cards: {renderCardCount()}
+                            </h4>
                             <img className="commanderImg" src={details.deck_img} alt={details?.commander} />
-                            <div className="deckContents">
+                            <div >
                                 <h4>Contents: <button onClick={handleClickOpen('paper')}>Add Cards</button></h4>
                                 {details?.deck_contents?.data?.map((item, i) => {
                                     return <DeckItem key={i} item={item} />
@@ -167,7 +191,6 @@ function DeckView() {
                             </DialogContent>
                         </Dialog>
                     </>
-
                 </>
                 :
                 <>

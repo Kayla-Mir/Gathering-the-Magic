@@ -11,12 +11,13 @@ function Nav() {
 
   const clearUserFields = () => {
     dispatch({ type: 'CLEAR_SEARCH' });
+    dispatch({ type: 'CLEAR_DETAILS' });
   }
 
   return (
     <div className="nav">
       <Link onClick={clearUserFields} to="/home">
-        <h2 className="nav-title">Prime Solo Project</h2>
+        <h2 className="nav-title"><img className='mtgSymbol' src='/image.png' /> Gathering the Magic</h2>
       </Link>
       <div>
         {/* <Link className="navLink" to="/home">
@@ -27,7 +28,7 @@ function Nav() {
           Search
         </Link>
 
-        {user.id ?
+        {/* {user.id ?
           <Link onClick={clearUserFields} className="navLink" to="/deck">
             Your Decks
           </Link>
@@ -35,8 +36,14 @@ function Nav() {
           <Link onClick={clearUserFields} className="navLink" to="/deck">
             Make a Deck
           </Link>
+        } */}
+
+        {user.id &&
+          <Link onClick={clearUserFields} className="navLink" to="/deck">
+            Your Decks
+          </Link>
         }
-        
+
         {/* If no user is logged in, show these links */}
         {!user.id &&
           // If there's no user, show login/registration links

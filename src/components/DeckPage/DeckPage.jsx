@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+import './DeckPage.css';
 
 function DeckPage() {
     const dispatch = useDispatch();
@@ -18,18 +19,17 @@ function DeckPage() {
         })
     }
 
-    console.log('decks', decks)
+
 
     return (
         <>
-            <div>
-                <button onClick={createDeck}>New Deck</button>
+            <div className="deckBtnDiv">
+                <button className="newDeckBtn" onClick={createDeck}>New Deck</button>
             </div>
             {decks?.length > 0 && decks?.map((deck) => {
                 return (
-                    <div key={deck.id}>
+                    <div className="deckDiv" key={deck.id}>
                         <h3>{deck.deck_name}</h3>
-                        <h4>Cards: {deck.deck_contents?.length + 1}</h4>
                         <img
                             onClick={() => history.push(`/deckView/${deck.id}`)}
                             src={deck.deck_img}

@@ -1,6 +1,5 @@
 import { put, takeEvery } from 'redux-saga/effects';
 import axios from 'axios';
-import swal from 'sweetalert';
 
 function* sendSearch(action) {
     try {

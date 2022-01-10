@@ -23,7 +23,7 @@ function SearchItem({ item }) {
             power: item.power ?? null,
             power_back: null,
             cmc: item.cmc,
-            set: item.set,
+            set: item.set_name,
             color_identity: item.color_identity,
             type_line: item.type_line,
             legality: item.legalities.commander,

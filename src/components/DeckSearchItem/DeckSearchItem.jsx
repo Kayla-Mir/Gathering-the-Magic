@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 function DeckSearchItem({ item }) {
     const [frontSide, setFrontSide] = useState(true);
     const user = useSelector((store) => store.user);
+    const decks = useSelector((store) => store.setDeck)
     const dispatch = useDispatch();
     const params = useParams();
 
@@ -14,11 +15,19 @@ function DeckSearchItem({ item }) {
     }
 
     const addToDeck = () => {
+        let deckNameToAdd;
+        decks.map((deck) => {
+            if(Number(params.id) === deck.id) {
+                deckNameToAdd = deck.deck_name
+            }
+        })
+        console.log('deckNameToAdd', deckNameToAdd);
         dispatch({
             type: 'UPDATE_DECK_CONTENTS',
             payload: {
                 cardToAdd: item,
-                deck_id: Number(params.id)
+                deck_id: Number(params.id),
+                deck_name: deckNameToAdd
             }
         })
     }
