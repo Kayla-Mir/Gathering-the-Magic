@@ -4,7 +4,6 @@ const pool = require('../modules/pool');
 const router = express.Router();
 
 router.get('/:search', (req, res) => {
-    console.log('in GET Magic', req.params.search);
     axios({
         method: 'GET',
         url: `https://api.scryfall.com/cards/search?q=${req.params.search}`

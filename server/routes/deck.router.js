@@ -74,6 +74,37 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
         });
 });
 
+router.get('/commander/:id', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        SELECT * FROM "user_decks"
+	        WHERE "user_id"=$1
+                AND "id"=$2;
+    `;
+    pool.query(sqlText, [req.user.id, req.params.id])
+        .then((dbRes) => {
+            const cardName = dbRes.rows[0].commander.replace(/ /g, "+");
+            console.log('cardName fixed', cardName);
+            // sends an axios request with the ids of the cards from the DB
+            if (dbRes.rows[0].commander != null) {
+                axios({
+                    method: 'GET',
+                    url: `https://api.scryfall.com/cards/named?exact=${cardName}`
+                }).then((apiRes) => {
+                    console.log('apiRes', apiRes.data)
+                    res.send(apiRes.data);
+                }).catch((apiErr) => {
+                    console.error('GET api error', apiErr);
+                });
+            } else {
+                res.send(dbRes.rows[0]);
+            }
+        })
+        .catch((dbErr) => {
+            console.error('get db error', dbErr);
+            res.sendStatus(500);
+        });
+});
+
 router.post('/', rejectUnauthenticated, (req, res) => {
     const cardPlaceholder = 'filler-card.png'
     const sqlText = `
@@ -145,7 +176,6 @@ router.put('/name', rejectUnauthenticated, (req, res) => {
         req.user.id,
         req.body.deck_id
     ]
-    console.log('sqlValues', sqlValues);
     pool.query(sqlText, sqlValues)
         .then((dbRes) => {
             const newQuery = `
@@ -287,12 +317,8 @@ router.delete('/:id', rejectUnauthenticated, (req, res) => {
         req.user.id,
         req.params.id
     ]
-    console.log('sqlValues', sqlValues);
-    
     pool.query(sqlText, sqlValues)
         .then((dbRes) => {
-            console.log('dbRes********', dbRes.rows);
-
             res.send(dbRes.rows);
         })
         .catch((dbErr) => {

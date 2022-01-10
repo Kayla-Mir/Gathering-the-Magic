@@ -11,6 +11,7 @@ function LogOutButton(props) {
     dispatch({ type: 'CLEAR_SEARCH' });
     dispatch({ type: 'CLEAR_DECK' });
     dispatch({ type: 'CLEAR_DETAILS' });
+    dispatch({ type: 'CLEAR_COMMANDER' });
     history.push('/login');
   }
 

@@ -21,7 +21,6 @@ function DeckSearchItem({ item }) {
                 deckNameToAdd = deck.deck_name
             }
         })
-        console.log('deckNameToAdd', deckNameToAdd);
         dispatch({
             type: 'UPDATE_DECK_CONTENTS',
             payload: {
@@ -30,6 +29,7 @@ function DeckSearchItem({ item }) {
                 deck_name: deckNameToAdd
             }
         })
+
     }
 
     const updateCommander = () => {
@@ -40,6 +40,9 @@ function DeckSearchItem({ item }) {
                 deck_img: item.image_uris?.normal ?? item.card_faces[0]?.image_uris?.normal,
                 deck_id: Number(params.id)
             }
+        })
+        dispatch({
+            type: 'CLEAR_COMMANDER'
         })
     }
 

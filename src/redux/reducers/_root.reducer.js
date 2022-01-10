@@ -5,6 +5,7 @@ import setSearch from './search.reducer';
 import setInventory from './inventory.reducer';
 import setDeck from './deck.reducer';
 import setDetails from './details.reducer';
+import setCommander from './commander.reducer';
 
 // rootReducer is the primary reducer for our entire project
 // It bundles up all of the other reducers so our project can use them.
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   setInventory,
   setDeck,
   setDetails,
+  setCommander,
 });
 
 export default rootReducer;

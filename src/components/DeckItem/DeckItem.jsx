@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+// imported styles
 import './DeckItem.css';
-
 //modal settings
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-
 // grid settings
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -44,9 +43,7 @@ function DeckItem({ item }) {
     // modal settings
     const [open, setOpen] = useState(false);
     const handleOpen = () => {
-        console.log('cardToCheckId', item.id)
         setOpen(true);
-        // call check inventory function
     };
     const handleClose = () => {
         setOpen(false);
@@ -68,10 +65,6 @@ function DeckItem({ item }) {
     }
 
     const checkInventory = () => {
-        // loop through inventory reducer
-            // at each point check object key of scryfall id vs id of modal card
-            // then store every time the id matches in a variable
-            // then return that variable after done looping
         let count = 0;
         inventory.map((card) => {
             if (card.scryfall_id === item.id) {
@@ -80,8 +73,6 @@ function DeckItem({ item }) {
         })
         return (count)
     }
-
-    console.log('item', item);
 
     return (
         <>

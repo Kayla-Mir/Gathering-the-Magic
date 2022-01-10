@@ -9,18 +9,19 @@
     display: inline-block;
     margin: 5px;
     border: 5px solid red;
-    border-radius: 17px;
+    border-radius: 20px;
 }
 
 .deckImgList {
     max-height: 350px;
-    border-radius: 12px;
+    border-radius: 15px;
     margin-bottom: -4px;
 }
 
 .deckImg {
     max-height: 450px;
     margin-left: 40px;
+    border-radius: 15px;
 }
 
 .deckImgName {

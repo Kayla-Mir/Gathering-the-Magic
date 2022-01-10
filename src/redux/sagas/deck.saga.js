@@ -32,6 +32,22 @@ function* getDetails(action) {
     }
 }
 
+function* getCommander(action) {
+    const deckId = action.payload;
+    try {
+        const response = yield axios({
+            method: 'GET',
+            url: `/api/deck/commander/${deckId}`
+        })
+        yield put({
+            type: 'SET_COMMANDER',
+            payload: response.data
+        })
+    } catch (error) {
+        console.error('GET commander', error)
+    }
+}
+
 function* createDeck(action) {
     console.log('action.payload createDeck', action.payload);
     try {
@@ -155,6 +171,7 @@ function* deleteDeck(action) {
 function* deckSaga() {
     yield takeEvery('FETCH_DECK', getDeck);
     yield takeEvery('GET_DETAILS', getDetails);
+    yield takeEvery('GET_COMMANDER', getCommander);
     yield takeEvery('NEW_DECK', createDeck);
     yield takeEvery('UPDATE_DECK_CONTENTS', updateDeckContents);
     yield takeEvery('UPDATE_DECK_NAME', updateDeckName);

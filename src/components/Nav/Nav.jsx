@@ -12,6 +12,7 @@ function Nav() {
   const clearUserFields = () => {
     dispatch({ type: 'CLEAR_SEARCH' });
     dispatch({ type: 'CLEAR_DETAILS' });
+    dispatch({ type: 'CLEAR_COMMANDER' });
   }
 
   return (
