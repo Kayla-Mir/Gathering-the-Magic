@@ -5,8 +5,17 @@
 
 .deckSearch {
     display: inline-block;
+    text-align: center;
 }
 
 .commanderImg {
     max-height: 375px;
 }
+
+.dialogBox {
+    position: absolute;
+}
+
+.position-absolute {
+    position: relative;
+  }

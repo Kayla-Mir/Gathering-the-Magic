@@ -1,0 +1,29 @@
+/* .deckSearchDiv {
+    max-width: 323px;
+} */
+
+.results {
+    max-width: 323px;
+}
+
+/* .deckSearchDiv img {
+} */
+
+.deckSearchBtn {
+    filter: drop-shadow(3px 5px 2px black);
+    transform: scale(1.5);
+}
+
+.searchName {
+    text-align: center;
+    word-break: normal;
+}
+
+.searchImg {
+    max-height: 450px;
+    margin-bottom: 19px;
+}
+
+.addToBtns {
+    text-align: center;
+}

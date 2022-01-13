@@ -82,7 +82,7 @@ router.get('/commander/:id', rejectUnauthenticated, (req, res) => {
     `;
     pool.query(sqlText, [req.user.id, req.params.id])
         .then((dbRes) => {
-            const cardName = dbRes.rows[0].commander.replace(/ /g, "+");
+            const cardName = dbRes.rows[0]?.commander?.replace(/ /g, "+");
             console.log('cardName fixed', cardName);
             // sends an axios request with the ids of the cards from the DB
             if (dbRes.rows[0].commander != null) {
@@ -140,22 +140,39 @@ router.put('/contents', rejectUnauthenticated, (req, res) => {
     ]
     pool.query(sqlText, sqlValues)
         .then((dbRes) => {
-            const newQuery = `
-                SELECT "id" FROM "user_decks"
-                    WHERE "user_id"=$1
-                        AND "id"=$2
+            const invSql = `
+                UPDATE "inventory"
+                    SET "deck_id"=$1
+                    WHERE "user_id"=$2
+                        AND "id"=$3;
             `;
-            const newValues = [
+            const invValues = [
+                req.body.deck_id,
                 req.user.id,
-                req.body.deck_id
+                req.body.cardToAdd.inventoryId
             ]
-            pool.query(newQuery, newValues)
+            pool.query(invSql, invValues)
                 .then((dbRes) => {
-                    res.send(dbRes.rows[0])
+                    const newQuery = `
+                        SELECT "id" FROM "user_decks"
+                            WHERE "user_id"=$1
+                                AND "id"=$2
+                    `;
+                    const newValues = [
+                        req.user.id,
+                        req.body.deck_id
+                    ]
+                    pool.query(newQuery, newValues)
+                        .then((dbRes) => {
+                            res.send(dbRes.rows[0])
+                        })
+                        .catch((dbErr) => {
+                            console.error('3rd put contents db error', dbErr);
+                            res.sendStatus(500);
+                        })
                 })
                 .catch((dbErr) => {
-                    console.error('2nd put contents db error', dbErr);
-                    res.sendStatus(500);
+                    console.error('2nd put contents db error', dbErr)
                 })
         })
         .catch((dbErr) => {

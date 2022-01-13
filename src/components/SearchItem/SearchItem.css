@@ -1,8 +1,19 @@
 .results {
     display: inline-block;
     margin: 20px;
+    border-radius: 17px;
 }
 
-img {
+.searchFlipImg {
     max-height: 450px;
+}
+
+.searchRegImg {
+    max-height: 450px;
+    margin-bottom: 19px;
+}
+
+.searchBtn {
+    filter: drop-shadow(3px 5px 2px black);
+    transform: scale(1.5);
 }

@@ -106,6 +106,51 @@ router.post('/', rejectUnauthenticated, (req, res) => {
         })
 })
 
+router.put('/', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        UPDATE "inventory"
+            SET "deck_id"=$1
+            WHERE "user_id"=$2
+                AND "id"=$3
+    `;
+    const sqlValues = [
+        req.body.deck_id,
+        req.user.id,
+        req.body.card_id
+    ]
+    console.log('sqlValues', sqlValues);
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            res.sendStatus(201);
+        })
+        .catch((dbErr) => {
+            console.error('inventory put db error', dbErr)
+            res.sendStatus(500);
+        })
+})
+
+router.put('/deleteDeckId', rejectUnauthenticated, (req, res) => {
+    console.log('delete from inventory', req.body)
+    const sqlText = `
+        UPDATE "inventory"
+            SET "deck_id"=NULL
+            WHERE "user_id"=$1
+                AND "id"=$2
+    `;
+    const sqlValues = [
+        req.user.id,
+        req.body.card_id
+    ]
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            res.sendStatus(201);
+        })
+        .catch((dbErr) => {
+            console.error('inventory put db error', dbErr)
+            res.sendStatus(500);
+        })
+})
+
 router.delete('/', rejectUnauthenticated, (req, res) => {
     const cardToDelete = req.body.id
     const sqlText = `

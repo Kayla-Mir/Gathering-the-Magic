@@ -13,6 +13,7 @@ function Nav() {
     dispatch({ type: 'CLEAR_SEARCH' });
     dispatch({ type: 'CLEAR_DETAILS' });
     dispatch({ type: 'CLEAR_COMMANDER' });
+    dispatch({ type: 'CLEAR_EXPORT' });
   }
 
   return (
@@ -62,9 +63,9 @@ function Nav() {
 
             <LogOutButton className="navLink" />
 
-            <Link onClick={clearUserFields} className="navLink" to="/info">
+            {/* <Link onClick={clearUserFields} className="navLink" to="/info">
               Info Page
-            </Link>
+            </Link> */}
           </>
         )}
 

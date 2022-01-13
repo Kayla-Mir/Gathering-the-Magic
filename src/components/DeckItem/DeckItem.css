@@ -12,6 +12,11 @@
     border-radius: 20px;
 }
 
+.deckItemBtn {
+    filter: drop-shadow(3px 5px 2px black);
+    transform: scale(1.0);
+}
+
 .deckImgList {
     max-height: 350px;
     border-radius: 15px;

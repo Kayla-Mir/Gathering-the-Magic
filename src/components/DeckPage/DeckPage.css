@@ -10,7 +10,11 @@
 }
 
 .newDeckBtn {
-    width: 40vw;
+    width: 30vw;
     height: 40px;
     border-radius: 7px;
+}
+
+.deckPage {
+    text-align: center;
 }

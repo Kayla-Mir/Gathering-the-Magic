@@ -16,7 +16,7 @@ function AboutPage() {
   return (
     <div className="container">
       <div>
-        <p>This about page is for anyone to read!</p>
+        <p>This is a Card Catalog and Deck builder all in one app!</p>
       </div>
     </div>
   );

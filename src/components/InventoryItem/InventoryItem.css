@@ -1,0 +1,16 @@
+.detailsContainer {
+    padding-left: 0px;
+    padding-top: 0px;
+    margin: 0;
+}
+
+.modalImg {
+    max-width: 350px;
+    margin-left: 40px;
+    border-radius: 15px;
+}
+
+.hoverImg {
+    max-width: 275px;
+    border-radius: 15px;
+}

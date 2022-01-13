@@ -1,5 +1,7 @@
 import { put, takeEvery } from 'redux-saga/effects';
 import axios from 'axios';
+import toast from 'react-hot-toast';
+
 
 function* getDeck() {
     try {
@@ -49,7 +51,6 @@ function* getCommander(action) {
 }
 
 function* createDeck(action) {
-    console.log('action.payload createDeck', action.payload);
     try {
         yield axios({
             method: 'POST',
@@ -71,23 +72,19 @@ function* updateDeckContents(action) {
             url: '/api/deck/contents',
             data: action.payload
         })
-        swal({
-            title: "Success!",
-            text: `You added ${action.payload.cardToAdd.name} to your ${action.payload.deck_name} deck!`,
-            icon: "success",
-            button: "OK",
-        });
+        toast.success(`${action.payload.cardToAdd.name} has been added to ${action.payload.deck_name}.`)
         yield put({
             type: 'GET_DETAILS',
             payload: response.data.id
         })
+        yield put({
+            type: 'FETCH_INVENTORY'
+        })
+        yield put({
+            type: 'CLEAR_AVAILABLE'
+        })
     } catch (error) {
-        swal({
-            title: "Sorry!",
-            text: `${action.payload.cardToAdd.name} could not be added to your deck at this time.`,
-            icon: "error",
-            button: "OK",
-        });
+        toast.error(`${action.payload.cardToAdd.name} could not be added to ${action.payload.deck_name} at this time.`)
         console.error('PUT deckContents error', error)
     }
 }
@@ -99,7 +96,7 @@ function* updateDeckName(action) {
             url: '/api/deck/name',
             data: action.payload
         })
-        yield put ({
+        yield put({
             type: 'GET_DETAILS',
             payload: response.data.id
         })
@@ -109,54 +106,47 @@ function* updateDeckName(action) {
 }
 
 function* updateDeckCommander(action) {
-    console.log('commander update', action.payload)
     try {
         const response = yield axios({
             method: 'PUT',
             url: '/api/deck/commander',
             data: action.payload
         })
-        swal({
-            title: "Success!",
-            text: `You set ${action.payload.commander} as your commander!`,
-            icon: "success",
-            button: "OK",
-        });
-        yield put ({
+        toast.success(`${action.payload.commander} has been set as your commander!`)
+        yield put({
             type: 'GET_DETAILS',
             payload: response.data.id
         })
     } catch (error) {
-        swal({
-            title: "Sorry!",
-            text: `${action.payload.commander} could not be set as your commander.`,
-            icon: "error",
-            button: "OK",
-        });
+        toast.error(`${action.payload.cardToAdd.name} could not be set as your commander.`)
         console.error('PUT deckName error', error)
     }
 }
 
 function* deleteFromDeck(action) {
-    console.log('action.payload', action.payload);
     try {
         const response = yield axios({
             method: 'DELETE',
             url: '/api/deck',
             data: action.payload
         })
+        toast.success(`${action.payload.cardToDelete.name} has been deleted.`)
         yield put({
             type: 'GET_DETAILS',
             payload: response.data.id
         })
+        yield put({
+            type: 'CLEAR_EXPORT'
+        })
     } catch (error) {
+        toast.error(`${action.payload.cardToDelete.name} could not be deleted.`)
         console.error('inventory DELETE request error', error)
     }
 }
 
 function* deleteDeck(action) {
     try {
-        yield axios ({
+        yield axios({
             method: 'DELETE',
             url: `/api/deck/${action.payload}`
         })

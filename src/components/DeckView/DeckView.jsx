@@ -4,6 +4,10 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import swal from 'sweetalert';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import { IconButton, ImageListItem, ImageListItemBar } from "@mui/material";
+import toast from 'react-hot-toast';
+import { saveAs } from 'file-saver';
 // imported components
 import LoadingComponent from "../Loading/Loading";
 import DeckItem from "../DeckItem/DeckItem";
@@ -55,6 +59,8 @@ function DeckView() {
     const searchResult = useSelector((store) => store.setSearch);
     const inventory = useSelector((store) => store.setInventory);
     const commander = useSelector((store) => store.setCommander);
+    const countCards = useSelector((store) => store.setCount);
+    const cardsExport = useSelector((store) => store.setExport);
     // dialog modal settings
     const [open, setOpen] = useState(false);
     const [scroll, setScroll] = useState('paper');
@@ -131,6 +137,7 @@ function DeckView() {
                 deck_id: Number(params.id)
             }
         })
+        toast.success(`${deckName} has been updated.`)
         setEditMode(!editMode);
     }
 
@@ -145,9 +152,23 @@ function DeckView() {
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                swal(`${details.deck_name} has been deleted.`, {
-                    icon: "success",
-                });
+                inventory.map((card) => {
+                    if (details.deck_contents !== null) {
+                        for (let item of details?.deck_contents?.data) {
+                            if (card.deck_id == params.id && card.scryfall_id === item.id) {
+                                dispatch({
+                                    type: 'UPDATE_INVENTORY_CARD_DELETE',
+                                    payload: {
+                                        deck_id: params.id,
+                                        scryfall_id: card.scryfall_id,
+                                        card_id: card.id,
+                                    }
+                                })
+                            }
+                        }
+                    }
+                })
+                toast.success(`${details.deck_name} has been deleted.`)
                 dispatch({
                     type: 'DELETE_DECK',
                     payload: Number(params.id)
@@ -157,7 +178,7 @@ function DeckView() {
                 dispatch({ type: 'CLEAR_COMMANDER' });
                 history.push('/deck');
             } else {
-                swal(`${details.deck_name} was not deleted.`)
+                toast.success(`${details.deck_name} was not deleted.`)
             }
         });
     }
@@ -175,21 +196,51 @@ function DeckView() {
         }
     }
 
-    const checkInventory = () => {
+    // checks if the commander is in the inventory
+    const checkCommanderInventory = () => {
         let count = 0;
         inventory.map((card) => {
             if (card.scryfall_id === commander.id) {
                 count += 1;
             }
         })
-        return (count)
+        return count;
+    }
+    // sorts the details.deck_contents.data by type_line
+    function dynamicSort(property) {
+        var sortOrder = 1;
+        if (property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a, b) {
+            if (sortOrder == -1) {
+                return b[property].localeCompare(a[property]);
+            } else {
+                return a[property].localeCompare(b[property]);
+            }
+        }
     }
 
-    console.log('details', details)
-    console.log('commander', commander)
+    details.deck_contents?.data?.sort(dynamicSort("type_line"));
+
+    let rows = [];
+
+    const downloadTxtFile = () => {
+        const element = document.createElement("a");
+        for (let cardToExport of cardsExport) {
+            rows.push(`\n\ ${cardToExport} x1`)
+        }
+        const file = new Blob(rows, { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = "cards.txt";
+        element.click();
+        rows = [];
+    }
 
     return (
         <div>
+            <button onClick={downloadTxtFile}>Export</button>
             {/* null check for if details hasn't been populated with data yet */}
             {details?.length != 0 ?
                 <>
@@ -211,8 +262,7 @@ function DeckView() {
                                 <button onClick={deleteDeck}>Delete Deck</button>
                             </>
                         }
-                        <h4>Cards: {renderCardCount()}
-                        </h4>
+                        <h4>Total Cards: {renderCardCount()}</h4>
                         <img className="commanderImg" onClick={handleOpenModal} src={details.deck_img} alt={details?.commander} />
                         <div >
                             <h4>Contents: <button onClick={handleClickOpen('paper')}>Add Cards</button></h4>
@@ -222,6 +272,7 @@ function DeckView() {
                         </div>
                     </div>
                     <Dialog
+                        className="dialogBox"
                         fullWidth={true}
                         maxWidth={'l'}
                         open={open}
@@ -230,11 +281,12 @@ function DeckView() {
                         aria-labelledby="scroll-dialog-title"
                         aria-describedby="scroll-dialog-description"
                     >
-                        <DialogContent >
+                        <DialogContent sx={{ textAlign: 'center' }}>
                             <div className="deckSearch">
                                 <>
-                                    <h5>Add Cards:</h5>
+                                    <h4>Add Cards:</h4>
                                     <input
+                                        autoFocus
                                         placeholder="Search Here"
                                         value={searchValue}
                                         onChange={(event) => setSearchValue(event.target.value)}
@@ -269,12 +321,70 @@ function DeckView() {
                                         {!commander.image_uris ?
                                             <>
                                                 {frontSide ?
-                                                    <img className="deckImg" src={!commander.name ? details.deck_img : commander?.card_faces[0]?.image_uris.normal} alt={commander.name} />
+                                                    <div className="deckItemDiv">
+                                                        <ImageListItem key={commander.id}>
+                                                            <img
+                                                                className="deckImg"
+                                                                src={!commander.name ?
+                                                                    details.deck_img
+                                                                    :
+                                                                    commander?.card_faces[0]?.image_uris.normal
+                                                                }
+                                                                alt={commander.name}
+                                                            />
+                                                            <ImageListItemBar
+                                                                title={commander.name}
+                                                                sx={{
+                                                                    backgroundColor: 'grey',
+                                                                    opacity: 1,
+                                                                    width: 0,
+                                                                    top: '-61%',
+                                                                    left: '80%'
+                                                                }}
+                                                                actionIcon={
+                                                                    <IconButton onClick={flipImage}>
+                                                                        <AutorenewIcon
+                                                                            fontSize="large"
+                                                                            className="deckItemBtn"
+                                                                            sx={{
+                                                                                color: 'white',
+                                                                                p: 2,
+                                                                            }}
+                                                                        />
+                                                                    </IconButton>
+                                                                }
+                                                            />
+                                                        </ImageListItem>
+                                                    </div>
                                                     :
-                                                    <img className="deckImg" src={!commander.name ? details.deck_img : commander?.card_faces[1]?.image_uris.normal} alt={commander.name} />
+                                                    <div>
+                                                        <ImageListItem key={commander.id}>
+                                                            <img className="deckImg" src={!commander.name ? details.deck_img : commander?.card_faces[1]?.image_uris.normal} alt={commander.name} />
+                                                            <ImageListItemBar
+                                                                title={commander.name}
+                                                                sx={{
+                                                                    backgroundColor: 'grey',
+                                                                    opacity: 1,
+                                                                    width: 0,
+                                                                    top: '-61%',
+                                                                    left: '80%'
+                                                                }}
+                                                                actionIcon={
+                                                                    <IconButton onClick={flipImage}>
+                                                                        <AutorenewIcon
+                                                                            fontSize="large"
+                                                                            className="deckItemBtn"
+                                                                            sx={{
+                                                                                color: 'white',
+                                                                                p: 2,
+                                                                            }}
+                                                                        />
+                                                                    </IconButton>
+                                                                }
+                                                            />
+                                                        </ImageListItem>
+                                                    </div>
                                                 }
-                                                <br />
-                                                <button onClick={flipImage}>Flip</button>
                                             </>
                                             :
                                             <>
@@ -285,10 +395,10 @@ function DeckView() {
                                     <Grid item xs={8}>
                                         <div className="detailsContainer">
                                             <h5 className="cardDetails">Owned:
-                                                {checkInventory() > 0 ?
-                                                    <span style={{ color: 'green' }}> {checkInventory()}</span>
+                                                {checkCommanderInventory() > 0 ?
+                                                    <span style={{ color: 'green' }}> {checkCommanderInventory()}</span>
                                                     :
-                                                    <span style={{ color: 'red' }}> {checkInventory()}</span>
+                                                    <span style={{ color: 'red' }}> {checkCommanderInventory()}</span>
                                                 }</h5>
                                             <h5 className="cardDetails">Type: {commander.type_line}</h5>
                                             <h5 className="cardDetails">Set: {commander.set_name}</h5>

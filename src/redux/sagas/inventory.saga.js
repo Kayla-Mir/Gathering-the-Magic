@@ -1,5 +1,6 @@
 import { put, takeEvery } from 'redux-saga/effects';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 function* getInventory() {
     try {
@@ -24,23 +25,45 @@ function* addCardToInventory(action) {
             url: '/api/inventory',
             data: action.payload
         })
-        swal({
-            title: "Success!",
-            text: `You added ${action.payload.name} to your inventory!`,
-            icon: "success",
-            button: "OK",
-        });
+        toast.success(`${action.payload.name} has been added to your inventory!`);
         yield put({
             type: 'FETCH_INVENTORY'
         })
     } catch (error) {
-        swal({
-            title: "Sorry!",
-            text: `${action.payload.name} could not be added to your inventory at this time.`,
-            icon: "error",
-            button: "OK",
-        });
+        toast.error(`${action.payload.name} could not be added to your inventory at this time.`);
         console.error('inventory POST request error', error)
+    }
+}
+
+function* updateInventoryCard(action) {
+    console.log('action.payload for update', action.payload);
+    try {
+        yield axios({
+            method: 'PUT', 
+            url: '/api/inventory',
+            data: action.payload
+        })
+        yield put({
+            type: 'FETCH_INVENTORY'
+        })
+    } catch (error) {
+        console.error('inventory PUT request error', error);
+    }
+}
+
+function* updateInventoryCardDelete(action) {
+    console.log('update inventory card delete', action.payload)
+    try {
+        yield axios({
+            method: 'PUT', 
+            url: '/api/inventory/deleteDeckId',
+            data: action.payload
+        })
+        yield put({
+            type: 'FETCH_INVENTORY'
+        })
+    } catch (error) {
+        console.error('inventory PUT request error', error);
     }
 }
 
@@ -51,38 +74,22 @@ function* deleteFromInventory(action) {
             url: '/api/inventory',
             data: action.payload
         })
+        toast.success(`${action.payload.name} has been deleted.`);
         yield put({
             type: 'FETCH_INVENTORY'
         })
     } catch (error) {
+        toast.error(`${action.payload.name} could not be deleted at this time.`);
         console.error('inventory DELETE request error', error)
     }
 }
-
-// function* checkInventory(action) {
-//     console.log('action.payload', action.payload)
-//     try {
-//         const response = yield axios({
-//             method: 'GET',
-//             url: `/api/inventory/${action.payload}`
-//         })
-//         // TODO: FIGURE THIS OUT 
-//         if (response.data[0].length > 0) {
-//             yield put({
-//                 type: 'SET_CARDS_OWNED',
-//                 payload: response[0].data
-//             })
-//         }
-//     } catch (error) {
-//         console.error('inventory GET request error', error)
-//     }
-// }
 
 function* inventorySaga() {
     yield takeEvery('FETCH_INVENTORY', getInventory);
     yield takeEvery('ADD_TO_INVENTORY', addCardToInventory);
     yield takeEvery('DELETE_FROM_INVENTORY', deleteFromInventory);
-    // yield takeEvery('CHECK_INVENTORY', checkInventory);
+    yield takeEvery('UPDATE_INVENTORY_CARD', updateInventoryCard);
+    yield takeEvery('UPDATE_INVENTORY_CARD_DELETE', updateInventoryCardDelete);
 }
 
 export default inventorySaga;
