@@ -50,14 +50,14 @@ function Nav() {
         {!user.id &&
           // If there's no user, show login/registration links
           <Link onClick={clearUserFields} className="navLink" to="/login">
-            Login
+            Login/Register
           </Link>
         }
 
         {/* If a user is logged in, show these links */}
         {user.id && (
           <>
-            <Link onClick={clearUserFields} className="navLink" to="/inventory">
+            <Link onClick={clearUserFields} className="navLink" to="/inventory" >
               Inventory
             </Link>
 
@@ -68,10 +68,10 @@ function Nav() {
             </Link> */}
           </>
         )}
-
+{/* 
         <Link onClick={clearUserFields} className="navLink" to="/about">
           About
-        </Link>
+        </Link> */}
       </div>
     </div>
   );

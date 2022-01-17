@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import { IconButton, ImageListItem, ImageListItemBar } from "@mui/material";
+import { IconButton, ImageListItem, ImageListItemBar, Tooltip } from "@mui/material";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 // imported styles
 import './DeckItem.css';
 // modal settings
@@ -21,6 +23,7 @@ const style = {
     width: 700,
     bgcolor: 'background.paper',
     border: '2px solid #000',
+    borderRadius: '17px',
     boxShadow: 24,
     p: 4,
 };
@@ -31,6 +34,19 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
+// MUI color theme
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#55476f',
+            darker: '#41335c',
+        },
+        neutral: {
+            main: '#64748B',
+            contrastText: '#fff',
+        },
+    },
+});
 
 function DeckItem({ item }) {
     const dispatch = useDispatch();
@@ -52,7 +68,7 @@ function DeckItem({ item }) {
         setOpen(false);
     };
     // loads the export reducer on page load
-        //page load checks the search results comparing to inventory
+    //page load checks the search results comparing to inventory
     useEffect(() => {
         // handleRefresh(),
         cardReducer();
@@ -83,7 +99,7 @@ function DeckItem({ item }) {
                         card_id: card.id,
                     }
                 })
-            } 
+            }
         })
         deleteFromDeck();
     }
@@ -113,13 +129,13 @@ function DeckItem({ item }) {
         inventory.map((card) => {
             if (card.scryfall_id === item.id && card.deck_id == params.id) {
                 available += 1;
-            }   
+            }
         })
         return available;
     }
 
     const cardReducer = () => {
-        let countAvailable = countCardsAvailable();
+        let countAvailable = isCardInDeck();
         if (countAvailable === 0 && cardsToExport.length < 1) {
             if (item.type_line.indexOf('Basic') === -1) {
                 dispatch({
@@ -132,13 +148,13 @@ function DeckItem({ item }) {
 
     return (
         <>
-            <div className={item.legalities.commander === 'legal' ? "deckResults" : "illegalCard"}>
+            <div onClick={handleOpen} className={item.legalities.commander === 'legal' ? "deckResults" : "illegalCard"}>
                 {!item.image_uris ?
                     <>
                         {frontSide ?
                             <div className="deckItemDiv">
                                 <ImageListItem key={item.id}>
-                                    <img onClick={handleOpen} className="deckImgList" src={item.card_faces[0].image_uris.normal} alt={item.name} />
+                                    <img  className="deckImgList" src={item.card_faces[0].image_uris.normal} alt={item.name} />
                                     <ImageListItemBar
                                         title={item.name}
                                         sx={{
@@ -208,16 +224,13 @@ function DeckItem({ item }) {
                 <div>
                     <Box sx={style}>
                         <Grid container spacing={4} columns={16}>
-                            <Grid item xs={16}>
-                                <h3 className="deckImgName">{item.name}</h3>
-                            </Grid>
                             <Grid item xs={8}>
                                 {!item.image_uris ?
                                     <>
                                         {frontSide ?
                                             <div className="deckItemDiv">
                                                 <ImageListItem key={item.id}>
-                                                    <img className="deckImg" src={item.card_faces[0].image_uris.normal} alt={item.name} />
+                                                    <img className="deckModalImg" src={item.card_faces[0].image_uris.normal} alt={item.name} />
                                                     <ImageListItemBar
                                                         title={item.name}
                                                         sx={{
@@ -245,7 +258,7 @@ function DeckItem({ item }) {
                                             :
                                             <div>
                                                 <ImageListItem key={item.id}>
-                                                    <img className="deckImg" src={item.card_faces[1].image_uris.normal} alt={item.name} />
+                                                    <img className="deckModalImg" src={item.card_faces[1].image_uris.normal} alt={item.name} />
                                                     <ImageListItemBar
                                                         title={item.name}
                                                         sx={{
@@ -274,46 +287,54 @@ function DeckItem({ item }) {
                                     </>
                                     :
                                     <>
-                                        <img className="deckImg" src={item.image_uris.normal} alt={item.name} />
+                                        <img className="deckModalImg" src={item.image_uris.normal} alt={item.name} />
                                     </>
                                 }
                             </Grid>
                             <Grid item xs={8}>
-                                <div className="detailsContainer">
-                                    <h5 className="cardDetails">Owned:
+                                <div className="detailsContainerDI">
+                                    <h3 className="cardDetails">Owned:
                                         {checkInventory() > 0 ?
-                                            <span style={{ color: 'green' }}> {checkInventory()}</span>
+                                            <span style={{ color: 'green', fontWeight: 'normal' }}> {checkInventory()}</span>
                                             :
-                                            <span style={{ color: 'red' }}> {checkInventory()}</span>
+                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {checkInventory()}</span>
                                         }
-                                    </h5>
-                                    <h5 className="cardDetails">Available:
+                                    </h3>
+                                    <h3 className="cardDetails">Available:
                                         {countCardsAvailable() > 0 ?
-                                            <span style={{ color: 'green' }}> {countCardsAvailable()}</span>
+                                            <span style={{ color: 'green', fontWeight: 'normal' }}> {countCardsAvailable()}</span>
                                             :
-                                            <span style={{ color: 'red' }}> {countCardsAvailable()}</span>
+                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {countCardsAvailable()}</span>
                                         }
-                                    </h5>
-                                    <h5 className="cardDetails">Added from Inventory? {isCardInDeck() > 0 ? <span style={{ color: 'green' }}> ✅ </span> : <span style={{ color: 'red' }}> ❌ </span>}</h5>
-                                    <h5 className="cardDetails">Type: {item.type_line}</h5>
-                                    <h5 className="cardDetails">Set: {item.set_name}</h5>
-                                    <h5 className="cardDetails">Commander Legality:
+                                    </h3>
+                                    <h3 className="cardDetails">In Deck:
+                                        {isCardInDeck() > 0 ?
+                                            <span style={{ color: 'green', fontWeight: 'normal' }}> ✅</span>
+                                            :
+                                            <span style={{ color: 'red', fontWeight: 'normal' }}> ❌</span>
+                                        }
+                                    </h3>
+                                    <h3 className="cardDetails">Type: <span style={{ fontWeight: 'normal' }}>{item.type_line}</span></h3>
+                                    <h3 className="cardDetails">Set: <span style={{ fontWeight: 'normal' }}>{item.set_name}</span></h3>
+                                    <h3 className="cardDetails">Commander Legality:
                                         {item.legalities.commander === 'legal' ?
-                                            <span> {item.legalities.commander}</span>
+                                            <span style={{ fontWeight: 'normal' }}> {item.legalities.commander}</span>
                                             :
-                                            <span style={{ color: 'red' }}> {item.legalities.commander.replace(/_/g, " ")}</span>
+                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {item.legalities.commander.replace(/_/g, " ")}</span>
                                         }
-                                    </h5>
-                                    <h5 className="cardDetails">Prices:
-                                        <p className="cardDetails">Normal: ${item.prices.usd !== null ? item.prices.usd : '---'}</p>
-                                        <p className="cardDetails">Foil: ${item.prices.usd_foil !== null ? item.prices.usd_foil : '---'}</p>
-                                    </h5>
-                                    <br />
-                                    <button className="modalDltBtn" onClick={updateInventory}>Delete</button>
+                                    </h3>
+                                    <h3 className="cardDetails">Prices:
+                                        <p className="cardDetails">Normal: <span style={{ fontWeight: 'normal' }}>${item.prices.usd !== null ? item.prices.usd : '---'}</span></p>
+                                        <p className="cardDetails">Foil: <span style={{ fontWeight: 'normal' }}>${item.prices.usd_foil !== null ? item.prices.usd_foil : '---'}</span></p>
+                                    </h3>                                <ThemeProvider theme={theme}>
+                                    <Tooltip title="Delete From Deck" placement="right">
+                                        <IconButton className="modalDltBtn" color="error">
+                                            <DeleteForeverIcon sx={{ fontSize: 35 }} onClick={updateInventory} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </ThemeProvider>
                                 </div>
-
                             </Grid>
-
                         </Grid>
                     </Box>
                 </div>

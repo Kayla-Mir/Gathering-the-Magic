@@ -6,14 +6,22 @@
 
 .searchFlipImg {
     max-height: 450px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
 }
 
 .searchRegImg {
     max-height: 450px;
     margin-bottom: 19px;
+    border-radius: 17px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
 }
 
 .searchBtn {
     filter: drop-shadow(3px 5px 2px black);
     transform: scale(1.5);
+}
+
+.detailsContainerS {
+    margin-top: 110px;
+    margin-left: 40px;
 }

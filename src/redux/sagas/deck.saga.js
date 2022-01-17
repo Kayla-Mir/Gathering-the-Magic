@@ -89,6 +89,28 @@ function* updateDeckContents(action) {
     }
 }
 
+function* autoFillDeckContents(action) {
+    try {
+        const response = yield axios({
+            method: 'PUT',
+            url: '/api/deck/contents/fill',
+            data: action.payload
+        })
+        yield put({
+            type: 'GET_DETAILS',
+            payload: response.data.id
+        })
+        yield put({
+            type: 'FETCH_INVENTORY'
+        })
+        yield put({
+            type: 'CLEAR_AVAILABLE'
+        })
+    } catch (error) {
+        console.error('PUT deckContents error', error)
+    }
+}
+
 function* updateDeckName(action) {
     try {
         const response = yield axios({
@@ -168,6 +190,7 @@ function* deckSaga() {
     yield takeEvery('UPDATE_DECK_COMMANDER', updateDeckCommander);
     yield takeEvery('DELETE_FROM_DECK', deleteFromDeck);
     yield takeEvery('DELETE_DECK', deleteDeck);
+    yield takeEvery('AUTO_FILL', autoFillDeckContents);
 }
 
 export default deckSaga;

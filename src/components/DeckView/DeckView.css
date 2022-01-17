@@ -1,6 +1,6 @@
 .deckContents {
     display: inline-block;
-    margin: 40px;
+    margin: 23px 50px 50px 50px;
 }
 
 .deckSearch {
@@ -8,14 +8,20 @@
     text-align: center;
 }
 
+.commanderImgDV {
+    margin-left: 30px;
+    max-height: 450px;
+}
+
 .commanderImg {
     max-height: 375px;
 }
 
-.dialogBox {
-    position: absolute;
-}
-
 .position-absolute {
     position: relative;
-  }
+}
+
+.detailsContainerDV {
+    margin-top: 90px;
+    margin-left: 40px;
+}

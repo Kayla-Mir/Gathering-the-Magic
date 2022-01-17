@@ -181,6 +181,75 @@ router.put('/contents', rejectUnauthenticated, (req, res) => {
         })
 })
 
+const cardsToAdd = [
+    '5d131784-c1a3-463e-a37b-b720af67ab62',
+    '52705c53-883e-4b6a-9c08-3fa35f6f17d5',
+    '44657ab1-0a6a-4a5f-9688-86f239083821',
+    'fab2fca4-a99f-4ffe-9c02-edb6e0be2358',
+    '9dfdb73d-b001-4a59-b79e-8c8c1baea116',
+    '6832e495-7ee9-43e0-94ea-03c88344080e',
+    'd0787e1f-0b75-44ab-a8fd-90358906a787',
+    '97502411-5c93-434c-b77b-ceb2c32feae7',
+    'e90d01c9-e76e-42ff-b0fa-8b6786242aae',
+    'b4036bb7-835d-4690-aca1-1ab566776e9a',
+    'c697548f-925b-405e-970a-4e78067d5c8e',
+    '2bd9d26e-984c-4cf8-8c46-447f9776668f',
+    'ab70c262-37a9-4dcd-80bb-d4422368eade',
+    '5b3c393c-3596-4bd9-a553-e0b03c2eb950',
+    'b76bed98-30b1-4572-b36c-684ada06826c',
+    '27427233-da58-45af-ade8-e0727929efaa',
+    '2a0417bf-b735-46d7-9985-2d991051020f',
+    'f185a734-a32a-4244-88e8-dabafbfd064f',
+    '75ec8548-5790-4eac-8780-cdd126438192',
+    '8dfcb129-4665-40e4-b5cb-a79f3f40ae5c',
+    '7bf6baf2-d20b-467d-8929-abefcf7dfa99',
+    '3606519e-5677-4c21-a34e-be195b6669fa',
+    'e1d2c774-aab9-4747-af91-da792ed7cfe1',
+    '14dc88ee-bba9-4625-af0d-89f3762a0ead',
+    'd6876c7a-8bbe-484e-b733-70229fa336cd',
+    '22a6a5f1-1405-4efb-af3e-e1f58d664e99',
+    'ea7e4c65-b4c4-4795-9475-3cba71c50ea5',
+    '3184b138-1109-4195-9d96-4f190164e98b'
+]
+
+router.put('/contents/fill', rejectUnauthenticated, (req, res) => {
+    const sqlText = `
+        UPDATE "user_decks"
+            SET "deck_contents"=$1
+            WHERE "user_id"=$2
+                AND "id"=$3;
+    `;
+    const sqlValues = [
+        cardsToAdd,
+        req.user.id,
+        req.body.deck_id
+    ]
+    pool.query(sqlText, sqlValues)
+        .then((dbRes) => {
+            const newQuery = `
+                SELECT "id" FROM "user_decks"
+                    WHERE "user_id"=$1
+                        AND "id"=$2
+            `;
+            const newValues = [
+                req.user.id,
+                req.body.deck_id
+            ]
+            pool.query(newQuery, newValues)
+                .then((dbRes) => {
+                    res.send(dbRes.rows[0])
+                })
+                .catch((dbErr) => {
+                    console.error('3rd put contents db error', dbErr);
+                    res.sendStatus(500);
+                })
+        })
+        .catch((dbErr) => {
+            console.error('put contents db error', dbErr);
+            res.sendStatus(500);
+        })
+})
+
 router.put('/name', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         UPDATE "user_decks"

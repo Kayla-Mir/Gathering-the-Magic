@@ -22,6 +22,7 @@ function LogOutButton(props) {
       // is passed to it from it's parents through React props
       className={props.className}
       onClick={clearUserFields}
+      style={{marginRight: '20px'}}
     >
       Log Out
     </button>

@@ -2,10 +2,34 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+// MUI imports
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import { IconButton, ImageListItem, ImageListItemBar } from "@mui/material";
+import { Button, IconButton, ImageListItem, ImageListItemBar, Typography } from "@mui/material";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import AddIcon from '@mui/icons-material/Add';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 // imported styles
 import './DeckSearchItem.css';
+
+// MUI item height for menu
+const ITEM_HEIGHT = 48;
+// MUI color theme
+// color theme for buttons
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#55476f',
+            darker: '#41335c',
+        },
+        neutral: {
+            main: '#64748B',
+            contrastText: '#fff',
+        },
+    },
+});
 
 function DeckSearchItem({ item }) {
     const dispatch = useDispatch();
@@ -19,6 +43,15 @@ function DeckSearchItem({ item }) {
     const decks = useSelector((store) => store.setDeck);
     const inventory = useSelector((store) => store.setInventory);
     const details = useSelector((store) => store.setDetails);
+    // MUI menu stuff
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     // handles the flipping of the image 
     const flipImage = () => {
         setFrontSide(!frontSide);
@@ -55,6 +88,7 @@ function DeckSearchItem({ item }) {
                 deck_name: deckNameToAdd
             }
         })
+        handleClose();
     }
     const addCardFromInventory = () => {
         dispatch({
@@ -70,6 +104,7 @@ function DeckSearchItem({ item }) {
             }
         })
         setCardOwned(false);
+        handleClose();
     }
     // updates the commander of a deck, sends a new deck
     const updateCommander = () => {
@@ -89,11 +124,10 @@ function DeckSearchItem({ item }) {
         <div className="results">
             {!item.image_uris ?
                 <>
-                    <p className="searchName">{item.name}</p>
                     {frontSide ?
                         <div className="deckSearchDiv">
                             <ImageListItem key={item.id}>
-                                <img src={item.card_faces[0].image_uris.normal} alt={item.name} />
+                                <img className="searchFlipImg" src={item.card_faces[0].image_uris.normal} alt={item.name} />
                                 <ImageListItemBar
                                     title={item.name}
                                     sx={{
@@ -121,7 +155,7 @@ function DeckSearchItem({ item }) {
                         :
                         <div>
                             <ImageListItem key={item.id}>
-                                <img src={item.card_faces[1].image_uris.normal} alt={item.name} />
+                                <img className="searchFlipImg" src={item.card_faces[1].image_uris.normal} alt={item.name} />
                                 <ImageListItemBar
                                     title={item.name}
                                     sx={{
@@ -150,7 +184,6 @@ function DeckSearchItem({ item }) {
                 </>
                 :
                 <>
-                    <p className="searchName">{item.name}</p>
                     <img className="searchImg" src={item.image_uris.normal} alt={item.name} />
                 </>
             }
@@ -158,9 +191,49 @@ function DeckSearchItem({ item }) {
             {
                 user.id &&
                 <div className="addToBtns">
-                    {cardOwned === true ? <button onClick={addCardFromInventory}>Add From Inventory</button> : null}
-                    <button onClick={addToDeck}>Add to Deck</button>
-                    <button onClick={updateCommander}>Set as Commander</button>
+                    <IconButton
+                        aria-controls={open ? 'long-menu' : undefined}
+                        aria-expanded={open ? 'true' : undefined}
+                        aria-haspopup="true"
+                        onClick={handleClick}
+                        sx={{
+                            float: 'left',
+                            marginLeft: '40px',
+                            padding: '0px',
+                        }}
+                    >
+                        <AddBoxIcon sx={{ fontSize: 35 }} />
+                    </IconButton>
+                    <Menu
+                        MenuListProps={{
+                            'aria-labelledby': 'long-button',
+                        }}
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        PaperProps={{
+                            style: {
+                                maxHeight: ITEM_HEIGHT * 4.5,
+                                width: '20ch',
+                            },
+                        }}
+                    >
+                        {cardOwned === true ?
+                            <MenuItem>
+                                <a onClick={addCardFromInventory}>Add From Inventory</a>
+                            </MenuItem>
+                            :
+                            <MenuItem disabled>
+                                <a onClick={addCardFromInventory}>Add From Inventory</a>
+                            </MenuItem>
+                        }
+                        <MenuItem>
+                            <a onClick={addToDeck}>Add to Deck</a>
+                        </MenuItem>
+                    </Menu>
+                    <ThemeProvider theme={theme}>
+                        <Button variant="contained" size="small" sx={{ float: 'right', marginRight: '40px' }} onClick={updateCommander}>Set as Commander</Button>
+                    </ThemeProvider>
                 </div>
             }
         </div >

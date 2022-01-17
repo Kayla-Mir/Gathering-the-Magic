@@ -6,22 +6,25 @@
     max-width: 323px;
 }
 
-/* .deckSearchDiv img {
-} */
-
 .deckSearchBtn {
-    filter: drop-shadow(3px 5px 2px black);
+    filter: drop-shadow(3px 5px 2px rgb(0, 0, 0));
     transform: scale(1.5);
 }
 
-.searchName {
-    text-align: center;
-    word-break: normal;
-}
 
 .searchImg {
     max-height: 450px;
     margin-bottom: 19px;
+    display: inline-block;
+    border-radius: 17px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
+}
+
+.searchFlipImg {
+    max-height: 450px;
+    display: inline-block;
+    border-radius: 17px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
 }
 
 .addToBtns {

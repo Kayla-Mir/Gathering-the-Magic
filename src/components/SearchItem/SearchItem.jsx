@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import { IconButton, ImageListItem, ImageListItemBar } from "@mui/material";
+import { IconButton, ImageListItem, ImageListItemBar, Stack } from "@mui/material";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Button, TextField } from "@mui/material";
 // select mui imports
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -21,9 +23,23 @@ const style = {
     width: 700,
     bgcolor: 'background.paper',
     border: '2px solid #000',
+    borderRadius: '17px',
     boxShadow: 24,
     p: 4,
 };
+// color theme for buttons
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#55476f',
+            darker: '#41335c',
+        },
+        neutral: {
+            main: '#64748B',
+            contrastText: '#fff',
+        },
+    },
+});
 // grid settings
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -116,7 +132,6 @@ function SearchItem({ item }) {
         <div className="results">
             {!item.image_uris ?
                 <>
-                    <p>{item.name}</p>
                     {frontSide ?
                         <div className="searchDiv">
                             <ImageListItem key={item.id}>
@@ -177,7 +192,6 @@ function SearchItem({ item }) {
                 </>
                 :
                 <>
-                    <p>{item.name}</p>
                     <img onClick={handleOpenModal} className="searchRegImg" src={item.image_uris.normal} alt={item.name} />
                 </>
             }
@@ -185,6 +199,7 @@ function SearchItem({ item }) {
             {user.id &&
                 <>
                     <Select
+                        size="small"
                         value={amountToAdd}
                         onChange={(event) => setAmountToAdd(event.target.value)}
                         displayEmpty
@@ -202,7 +217,11 @@ function SearchItem({ item }) {
 
                         })}
                     </Select>
-                    <button onClick={addToInventory}>Add to Inventory</button>
+                    <ThemeProvider theme={theme}>
+                        <Stack direction="row" spacing={1} display={"inline-block"}>
+                            <Button style={{marginLeft: '10px'}} variant="contained" onClick={addToInventory}>Add to Inventory</Button>
+                        </Stack>
+                    </ThemeProvider>
                 </>
             }
             <>
@@ -215,9 +234,6 @@ function SearchItem({ item }) {
                     <div>
                         <Box sx={style}>
                             <Grid container spacing={4} columns={16}>
-                                <Grid item xs={16}>
-                                    <h3 className="deckImgName">{item.name}</h3>
-                                </Grid>
                                 <Grid item xs={8}>
                                     {!item.image_uris ?
                                         <>
@@ -294,20 +310,20 @@ function SearchItem({ item }) {
                                     }
                                 </Grid>
                                 <Grid item xs={8}>
-                                    <div className="detailsContainer">
-                                        <h5 className="cardDetails">Type: {item.type_line}</h5>
-                                        <h5 className="cardDetails">Set: {item.set_name}</h5>
-                                        <h5 className="cardDetails">Commander Legality:
+                                    <div className="detailsContainerS">
+                                        <h3 className="cardDetails">Type: <span style={{fontWeight: 'normal'}}>{item.type_line}</span></h3>
+                                        <h3 className="cardDetails">Set: <span style={{fontWeight: 'normal'}}>{item.set_name}</span></h3>
+                                        <h3 className="cardDetails">Commander Legality:
                                             {item?.legalities?.commander === 'legal' ?
-                                                <span> {item.legalities.commander}</span>
+                                                <span style={{fontWeight: 'normal'}}> {item.legalities.commander}</span>
                                                 :
-                                                <span style={{ color: 'red' }}> {item?.legalities?.commander.replace(/_/g, " ")}</span>
+                                                <span style={{ color: 'red', fontWeight: 'normal' }}> {item?.legalities?.commander.replace(/_/g, " ")}</span>
                                             }
-                                        </h5>
-                                        <h5 className="cardDetails">Prices:
-                                            <p className="cardDetails">Normal: ${item?.prices?.usd !== null ? item?.prices?.usd : '---'}</p>
-                                            <p className="cardDetails">Foil: ${item?.prices?.usd_foil !== null ? item?.prices?.usd_foil : '---'}</p>
-                                        </h5>
+                                        </h3>
+                                        <h3 className="cardDetails">Prices:
+                                            <p className="cardDetails">Normal: <span style={{fontWeight: 'normal'}}>${item?.prices?.usd !== null ? item?.prices?.usd : '---'}</span></p>
+                                            <p className="cardDetails">Foil: <span style={{fontWeight: 'normal'}}>${item?.prices?.usd_foil !== null ? item?.prices?.usd_foil : '---'}</span></p>
+                                        </h3>
                                     </div>
                                 </Grid>
                             </Grid>

@@ -4,17 +4,25 @@
     margin-left: 40px;
 }
 
+.commanderImg {
+    border-radius: 17px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
+}
+
 .deckBtnDiv {
     margin-left: 40px;
     text-align: center;
+    margin-bottom: 5vh;
 }
 
 .newDeckBtn {
-    width: 30vw;
+    width: 20vw;
     height: 40px;
     border-radius: 7px;
+    
 }
 
 .deckPage {
+    margin-top: 5vh;
     text-align: center;
 }

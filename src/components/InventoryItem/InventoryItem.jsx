@@ -2,8 +2,12 @@ import { forwardRef, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import { IconButton, ImageListItem, ImageListItemBar } from "@mui/material";
-import toast from 'react-hot-toast';
+import { IconButton, ImageListItem, ImageListItemBar, Typography } from "@mui/material";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 // imported styles
 import './InventoryItem.css'
 // table settings
@@ -27,6 +31,7 @@ import MuiAlert from '@mui/material/Alert';
 // grid settings
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import { fontSize } from "@mui/system";
 // grid item
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
@@ -43,10 +48,10 @@ const modalStyle = {
     width: 700,
     bgcolor: 'background.paper',
     border: '2px solid #000',
+    borderRadius: '17px',
     boxShadow: 24,
     p: 4,
 };
-
 // box style
 const style = {
     position: 'absolute',
@@ -62,10 +67,24 @@ const style = {
     p: 4,
     borderRadius: 4,
 };
+// MUI color theme
+// color theme for buttons
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#b6b5c5',
+            darker: '#b6b5c5',
+        },
+        neutral: {
+            main: '#64748B',
+            contrastText: '#fff',
+        },
+    },
+});
 
 // hover tooltip style
 const HtmlTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} placement="right" />
+    <Tooltip {...props} classes={{ popper: className }} placement="right" followCursor />
 ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: '#f5f5f9',
@@ -123,17 +142,16 @@ function InventoryItem({ item }) {
     }
 
     useEffect(() => {
-        setNameOfDeck()
-    }, [JSON.stringify(inventory)])
+        setNameOfDeck();
+    }, [JSON.stringify(inventory)]);
 
     const setNameOfDeck = () => {
         decks.map((deck) => {
             if (item.deck_id === deck.id) {
-                console.log('this is a matching deck', deck)
+                console.log('deckNameForItem', deckNameForItem);
                 setDeckNameForItem(deck.deck_name);
             }
         })
-        
     }
 
     const deleteFromInventory = () => {
@@ -188,9 +206,9 @@ function InventoryItem({ item }) {
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
                 <HtmlTooltip title={<img className="hoverImg" src={item.img_url} alt={item.name} />}>
-                    <TableCell onClick={handleOpenModal}>{item.name}</TableCell>
+                    <TableCell sx={{ fontSize: '16px' }} onClick={handleOpenModal}>{item.name}</TableCell>
                 </HtmlTooltip>
-                <TableCell align="right">
+                <TableCell sx={{ fontSize: '16px' }} align="right">
                     {item.img_back_url ?
                         item.toughness_back ?
                             `${item.toughness} // ${item.toughness_back}`
@@ -200,7 +218,7 @@ function InventoryItem({ item }) {
                         item.toughness ?? '-'
                     }
                 </TableCell>
-                <TableCell align="right">{item.power ?
+                <TableCell sx={{ fontSize: '16px' }} align="right">{item.power ?
                     item.power_back ?
                         `${item.power} // ${item.power_back}`
                         :
@@ -209,14 +227,32 @@ function InventoryItem({ item }) {
                     item.power ?? '-'
                 }
                 </TableCell>
-                <TableCell align="right">{item.cmc}</TableCell>
-                <TableCell >{item.set}</TableCell>
-                <TableCell >{item.color_identity.length === 0 ? '-' : item.color_identity}</TableCell>
-                <TableCell >{item.type_line}</TableCell>
-                <TableCell align="center">
-                    {!item.deck_id ? <button onClick={handleOpenSelect}>Add</button> : <p>{deckNameForItem}</p>}
+                <TableCell sx={{ fontSize: '16px' }} align="right">{item.cmc}</TableCell>
+                <TableCell sx={{ fontSize: '15px' }} >{item.set}</TableCell>
+                <TableCell sx={{ fontSize: '16px' }} >{item.color_identity.length === 0 ? '-' : item.color_identity}</TableCell>
+                <TableCell sx={{ fontSize: '15px' }} >{item.type_line}</TableCell>
+                <TableCell sx={{ fontSize: '15px' }} align="center">
+                    {!item.deck_id ?
+                        <ThemeProvider theme={theme}>
+                            <Tooltip title="Add to Deck" placement="right">
+                                <IconButton size="small" color="primary" onClick={handleOpenSelect} >
+                                    <AddBoxIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </ThemeProvider>
+                        :
+                        <a>{deckNameForItem}</a>
+                    }
                 </TableCell>
-                <TableCell align="right"><button onClick={deleteFromInventory}>Delete</button></TableCell>
+                <TableCell sx={{ fontSize: '16px' }} align="center">
+                    <ThemeProvider theme={theme}>
+                        <Tooltip title="Delete" placement="right">
+                            <IconButton size="small" color="error" onClick={deleteFromInventory} >
+                                <DeleteForeverIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </ThemeProvider>
+                </TableCell>
 
             </TableRow>
             <Modal
@@ -228,9 +264,6 @@ function InventoryItem({ item }) {
                 <div className="inventoryItemDiv">
                     <Box sx={modalStyle}>
                         <Grid container spacing={4} columns={8}>
-                            <Grid item xs={8}>
-                                <h3 className="deckImgName">{item.name}</h3>
-                            </Grid>
                             <Grid item xs={4}>
                                 {item.img_back_url ?
                                     <>
@@ -307,24 +340,24 @@ function InventoryItem({ item }) {
                                 }
                             </Grid>
                             <Grid item xs={4}>
-                                <div className="detailsContainer">
-                                    <h5 className="cardDetails">Owned:
+                                <div className="detailsContainerInv">
+                                    <h3 className="cardDetails">Owned:
                                         {checkInventory() > 0 ?
-                                            <span style={{ color: 'green' }}> {checkInventory()}</span>
+                                            <span style={{ color: 'green', fontWeight: 'normal' }}> {checkInventory()}</span>
                                             :
-                                            <span style={{ color: 'red' }}> {checkInventory()}</span>
-                                        }</h5>
-                                    <h5 className="cardDetails">Type: {item.type_line}</h5>
-                                    <h5 className="cardDetails">Set: {item.set}</h5>
-                                    <h5 className="cardDetails">Commander Legality:
+                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {checkInventory()}</span>
+                                        }</h3>
+                                    <h3 className="cardDetails">Type: <span style={{fontWeight: 'normal'}}>{item.type_line}</span></h3>
+                                    <h3 className="cardDetails">Set: <span style={{fontWeight: 'normal'}}>{item.set}</span></h3>
+                                    <h3 className="cardDetails">Commander Legality:
                                         {item?.legality === 'legal' ?
-                                            <span> {item.legality}</span>
+                                            <span style={{fontWeight: 'normal'}}> {item.legality}</span>
                                             :
-                                            <span style={{ color: 'red' }}> {item?.legality?.replace(/_/g, " ")}</span>
+                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {item?.legality?.replace(/_/g, " ")}</span>
                                         }
-                                    </h5>
-                                    <button onClick={handleOpenSelect}>Add</button>
-                                    <button onClick={deleteFromInventory}>Delete</button>
+                                    </h3>
+                                    {item.deck_id ? <h3 className="cardDetails">In Deck: <span style={{fontWeight: 'normal'}}>{deckNameForItem}</span></h3> : null}
+                                    
                                 </div>
                             </Grid>
                         </Grid>
@@ -340,14 +373,14 @@ function InventoryItem({ item }) {
                 <div>
                     <Box sx={style}>
                         <p>Add {item.name} to which deck?</p>
-                        <InputLabel id="deckSelectLabel">Choose Deck</InputLabel>
+                        <InputLabel id="deckSelectLabel">Choose a Deck</InputLabel>
                         <Select
                             labelId="deckSelectLabel"
                             id="deckSelect"
                             value={deckIdToSend}
                             onChange={(event) => setDeckToSend(event.target.value)}
-                            autoWidth
-                            label="Deck"
+                            label="Decks"
+                            sx={{ minWidth: 100, marginBottom: '10px' }}
                         >
                             <MenuItem value="">
                                 <em>None</em>
@@ -360,22 +393,25 @@ function InventoryItem({ item }) {
                                 )
                             })}
                         </Select>
-                        <br />
-                        <button onClick={inventoryCardAddToDeck}>Add Card</button>
-                        <button onClick={handleCloseSelect}>Cancel</button>
-
+                        <div style={{marginTop: '10px'}}>
+                            <ThemeProvider theme={theme}>
+                                <Tooltip title="Add to Deck" placement="bottom">
+                                    <IconButton size="small" color="success" sx={{marginRight: '20px'}} onClick={inventoryCardAddToDeck} >
+                                        <CheckIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </ThemeProvider>
+                            <ThemeProvider theme={theme}>
+                                <Tooltip title="Cancel" placement="bottom">
+                                    <IconButton size="small" color="error" onClick={handleCloseSelect} >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </ThemeProvider>
+                        </div>
                     </Box>
                 </div>
             </Modal>
-            {/* <>
-                <Stack spacing={2} sx={{ width: '100%' }}>
-                    <Snackbar open={openToast} autoHideDuration={6000} onClose={handleCloseToast}>
-                        <Alert onClose={handleCloseToast} severity="success" sx={{ width: '20vw'}}>
-                            You have deleted a card!
-                        </Alert>
-                    </Snackbar>
-                </Stack>
-            </> */}
         </>
     )
 }

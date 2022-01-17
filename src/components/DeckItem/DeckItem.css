@@ -7,9 +7,24 @@
 
 .illegalCard {
     display: inline-block;
+    position: relative;
     margin: 5px;
-    border: 5px solid red;
+    
     border-radius: 20px;
+}
+
+.illegalCard:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 250px;
+    height: 350px;
+    background: rgba(250, 50, 50, 0.5);
+    border-radius: 14px;
 }
 
 .deckItemBtn {
@@ -21,12 +36,21 @@
     max-height: 350px;
     border-radius: 15px;
     margin-bottom: -4px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
 }
 
 .deckImg {
     max-height: 450px;
     margin-left: 40px;
     border-radius: 15px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
+}
+
+.deckModalImg {
+    max-height: 450px;
+    margin-left: 20px;
+    border-radius: 15px;
+    box-shadow: 10px 5px 5px rgb(140, 140, 140);
 }
 
 .deckImgName {
@@ -38,12 +62,12 @@
     margin: 10px;
 }
 
-.detailsContainer {
+.detailsContainerDI {
     text-align: left;
-    margin-top: 100px;
-    margin-left: 40px;
+    margin-top: 60px;
+    margin-left: 30px;
 }
 
 .modalDltBtn {
-    justify-self: center;
+    float: right;
 }

@@ -13,6 +13,11 @@ Grid
   align-items: flex-start;
 }
 
+.regContainer {
+  display: inline-block;
+  align-items: center;
+}
+
 .grid-col {
   flex: 0 0 auto;
   padding: 0 0.5rem 0.5rem;
@@ -34,10 +39,10 @@ Grid
   max-width: 25%;
 }
 
-.grid-col_4 {
-  flex-basis: 33.33333333%;
+/* .grid-col_4 {
+  flex-basis: 100%;
   max-width: 33.33333333%;
-}
+} */
 
 .grid-col_5 {
   flex-basis: 41.66666667%;

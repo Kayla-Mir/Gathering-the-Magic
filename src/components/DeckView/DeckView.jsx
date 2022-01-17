@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import swal from 'sweetalert';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import { IconButton, ImageListItem, ImageListItemBar } from "@mui/material";
+import { IconButton, ImageListItem, ImageListItemBar, Input, Stack, TextField } from "@mui/material";
 import toast from 'react-hot-toast';
-import { saveAs } from 'file-saver';
 // imported components
 import LoadingComponent from "../Loading/Loading";
 import DeckItem from "../DeckItem/DeckItem";
 import DeckSearchItem from "../DeckSearchItem/DeckSearchItem";
+// chart.js imports
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
 // imported styles
 import './DeckView.css';
 // dialog imports
@@ -23,6 +25,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 //modal settings
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -46,9 +49,32 @@ const style = {
     width: 700,
     bgcolor: 'background.paper',
     border: '2px solid #000',
+    borderRadius: '17px',
     boxShadow: 24,
     p: 4,
 };
+// color theme for buttons
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#55476f',
+            darker: '#41335c',
+        },
+        neutral: {
+            main: '#64748B',
+            contrastText: '#fff',
+        },
+    },
+    breakpoints: {
+        values: {
+            xs: 240,
+            sm: 900,
+            md: 1060,
+            lg: 1660,
+            xl: 1920,
+        }
+    }
+});
 
 function DeckView() {
     const params = useParams();
@@ -72,6 +98,9 @@ function DeckView() {
     //handles dialog close
     const handleClose = () => {
         setOpen(false);
+        dispatch({
+            type: 'CLEAR_SEARCH'
+        })
     };
     // pieces of state for search, edit mode, and updating deckName
     const [searchValue, setSearchValue] = useState('');
@@ -111,7 +140,8 @@ function DeckView() {
     useEffect(() => {
         // handleRefresh(),
         getDetails();
-    }, [params.id])
+        getGraphData();
+    }, [params.id, details?.deck_contents?.data])
 
     // handles edit mode for the name of the deck
     const handleEditMode = () => {
@@ -238,34 +268,245 @@ function DeckView() {
         rows = [];
     }
 
+    const fillInCards = () => {
+        dispatch({
+            type: 'AUTO_FILL',
+            payload: {
+                deck_id: Number(params.id)
+            }
+        })
+    }
+
+    const colorBreakdown = {
+        red: 0,
+        blue: 0,
+        white: 0,
+        green: 0,
+        black: 0,
+    }
+    // chart stuff????
+    ChartJS.register(ArcElement, Tooltip, Legend);
+
+    const config = {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Chart.js Doughnut Chart'
+                }
+            }
+        },
+    };
+
+    const data = {
+        labels: ['Red', 'Blue', 'White', 'Green', 'Black'],
+        datasets: [
+            {
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: [
+                    'rgb(211,31,42)',
+                    'rgb(16,105,171)',
+                    'rgb(246,228,183)',
+                    'rgb(1,114,62)',
+                    'rgb(22,10,0)',
+                ],
+                borderColor: [
+                    'rgb(211,31,42)',
+                    'rgb(16,105,171)',
+                    'rgb(246,228,183)',
+                    'rgb(1,114,62)',
+                    'rgb(22,10,0)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const countColors = (cardToCheck) => {
+        if (cardToCheck?.card_faces) {
+            for (let i = 0; i < cardToCheck?.card_faces[0]?.mana_cost.length; i++) {
+                const positionToCheckFront = cardToCheck?.card_faces[0]?.mana_cost[i];
+                if (positionToCheckFront === 'R') {
+                    colorBreakdown.red += 1;
+                }
+                if (positionToCheckFront === 'U') {
+                    colorBreakdown.blue += 1;
+                }
+                if (positionToCheckFront === 'W') {
+                    colorBreakdown.white += 1;
+                }
+                if (positionToCheckFront === 'G') {
+                    colorBreakdown.green += 1;
+                }
+                if (positionToCheckFront === 'B') {
+                    colorBreakdown.black += 1;
+                }
+            }
+            for (let i = 0; i < cardToCheck?.card_faces[1]?.mana_cost.length; i++) {
+                const positionToCheckBack = cardToCheck?.card_faces[1]?.mana_cost[i];
+                if (positionToCheckBack === 'R') {
+                    colorBreakdown.red += 1;
+                }
+                if (positionToCheckBack === 'U') {
+                    colorBreakdown.blue += 1;
+                }
+                if (positionToCheckBack === 'W') {
+                    colorBreakdown.white += 1;
+                }
+                if (positionToCheckBack === 'G') {
+                    colorBreakdown.green += 1;
+                }
+                if (positionToCheckBack === 'B') {
+                    colorBreakdown.black += 1;
+                }
+            }
+        } else {
+            for (let i = 0; i < cardToCheck?.mana_cost.length; i++) {
+                const positionToCheck = cardToCheck?.mana_cost[i];
+                if (positionToCheck === 'R') {
+                    colorBreakdown.red += 1;
+                }
+                if (positionToCheck === 'U') {
+                    colorBreakdown.blue += 1;
+                }
+                if (positionToCheck === 'W') {
+                    colorBreakdown.white += 1;
+                }
+                if (positionToCheck === 'G') {
+                    colorBreakdown.green += 1;
+                }
+                if (positionToCheck === 'B') {
+                    colorBreakdown.black += 1;
+                }
+            }
+        }
+        data.datasets[0].data[0] = colorBreakdown.red;
+        data.datasets[0].data[1] = colorBreakdown.blue;
+        data.datasets[0].data[2] = colorBreakdown.white;
+        data.datasets[0].data[3] = colorBreakdown.green;
+        data.datasets[0].data[4] = colorBreakdown.black;
+    }
+
+    const getGraphData = () => {
+        details?.deck_contents?.data?.map((cardToCheck) => {
+            countColors(cardToCheck);
+        })
+        console.log('color breakdown', colorBreakdown)
+    }
+
     return (
         <div>
-            <button onClick={downloadTxtFile}>Export</button>
             {/* null check for if details hasn't been populated with data yet */}
             {details?.length != 0 ?
                 <>
+                    <ThemeProvider theme={theme}>
+                        <Box sx={{ flexGrow: 1 }} >
+                            <Grid container spacing={2} columns={6}>
+                                <Grid item xs={1} sx={{ maxHeight: '485px' }}>
+
+                                </Grid>
+                                <Grid item xs={1} sx={{ maxHeight: '485px', minWidth: '375px' }}>
+                                    <div style={{ display: 'inline-block', paddingLeft: '30px' }}>
+                                        <h3 style={{ textAlign: 'center' }}>Commander</h3>
+                                        <img className="commanderImg" onClick={handleOpenModal} src={details.deck_img} alt={details?.commander} />
+                                    </div>
+                                </Grid>
+                                <Grid item xs={1} sx={{ maxHeight: '485px', minWidth: '250px' }}>
+                                    <div style={{ display: 'inline-block', paddingTop: '80px' }}>
+                                        <h2 onClick={() => setDeckName('God Tribal')}>{details?.deck_name}</h2>
+                                        {editMode ?
+                                            <>
+                                                <TextField
+                                                    size="small"
+                                                    style={{ display: 'block', marginBottom: '10px' }}
+                                                    value={deckName}
+                                                    placeholder={details.deck_name}
+                                                    onChange={(event) => setDeckName(event.target.value)}
+                                                />
+                                                <ThemeProvider theme={theme}>
+                                                    <Stack direction="row" spacing={1}>
+                                                        <Button variant="contained" color="primary" size="small" spacing={2} onClick={updateDeck}>Save</Button>
+                                                        <Button variant="contained" color="primary" size="small" onClick={() => setEditMode(!editMode)}>Cancel</Button>
+                                                    </Stack>
+                                                </ThemeProvider>
+                                            </>
+                                            :
+                                            <ThemeProvider theme={theme}>
+                                                <Stack direction="row" spacing={1}>
+                                                    <Button style={{ display: 'block' }} variant="contained" color="primary" size="small" onClick={handleEditMode}>Edit</Button>
+                                                    <Button variant="contained" color="primary" size="small" onClick={deleteDeck}>Delete Deck</Button>
+                                                </Stack>
+                                            </ThemeProvider>
+                                        }
+                                        {getGraphData()}
+                                        <br />
+                                        <h3 onClick={fillInCards} style={{}}>Total Cards: {renderCardCount()}</h3>
+                                        <ThemeProvider theme={theme}>
+                                            <Button size="small" variant="contained" color="primary" style={{ display: 'inline-block', marginTop: '50px' }} onClick={downloadTxtFile}>Export Unowned Cards</Button>
+                                        </ThemeProvider>
+                                    </div>
+                                </Grid>
+                                <Grid item xs={2} sx={{ maxHeight: '485px', minWidth: '250px' }}>
+                                    <h3 style={{ textAlign: 'center' }}>Color Breakdown</h3>
+                                    <Doughnut data={data} style={{ maxHeight: '400px' }} />
+                                </Grid>
+                                <Grid item xs={1} sx={{ maxHeight: '485px' }}>
+
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </ThemeProvider>
+
+                    {/* <div style={{ display: 'inline-block', position: 'absolute', paddingTop: '25px', marginLeft: '750px' }}>
+                            <h2 style={{ display: 'inline-block' }}>{details?.deck_name}</h2>
+                            {editMode ?
+                                <>
+                                    <TextField
+                                        size="small"
+                                        style={{ display: 'block', marginBottom: '10px' }}
+                                        value={deckName}
+                                        placeholder={details.deck_name}
+                                        onChange={(event) => setDeckName(event.target.value)}
+                                    />
+                                    <ThemeProvider theme={theme}>
+                                        <Stack direction="row" spacing={1}>
+                                            <Button variant="contained" color="primary" size="small" spacing={2} onClick={updateDeck}>Save</Button>
+                                            <Button variant="contained" color="primary" size="small" onClick={() => setEditMode(!editMode)}>Cancel</Button>
+                                        </Stack>
+                                    </ThemeProvider>
+                                </>
+                                :
+                                <ThemeProvider theme={theme}>
+                                    <Stack direction="row" spacing={1}>
+                                        <Button style={{ display: 'block' }} variant="contained" color="primary" size="small" onClick={handleEditMode}>Edit</Button>
+                                        <Button variant="contained" color="primary" size="small" onClick={deleteDeck}>Delete Deck</Button>
+                                    </Stack>
+                                </ThemeProvider>
+                            }
+                            {getGraphData()}
+                            <br />
+
+                            <h3 onClick={fillInCards} style={{ paddingTop: '30px' }}>Total Cards: {renderCardCount()}</h3>
+                            <ThemeProvider theme={theme}>
+                                <Button size="small" variant="contained" color="primary" style={{ display: 'inline-block', marginTop: '50px' }} onClick={downloadTxtFile}>Export Unowned Cards</Button>
+                            </ThemeProvider>
+                        </div> */}
+                    {/* <div style={{ display: 'inline-block', marginLeft: '405px' }}>
+                            <img className="commanderImg" style={{ display: 'inline-block' }} onClick={handleOpenModal} src={details.deck_img} alt={details?.commander} />
+                        </div> */}
+                    {/* <div style={{ display: 'inline-block', float: 'right', marginRight: '400px' }}>
+                            <h3 style={{ textAlign: 'center' }}>Color Breakdown</h3>
+                            <Doughnut data={data} />
+                        </div> */}
                     <div className="deckContents">
-                        <h3>{details?.deck_name}</h3>
-                        {editMode ?
-                            <>
-                                <input
-                                    value={deckName}
-                                    placeholder={details.deck_name}
-                                    onChange={(event) => setDeckName(event.target.value)}
-                                />
-                                <button onClick={updateDeck}>Save</button>
-                                <button onClick={() => setEditMode(!editMode)}>Cancel</button>
-                            </>
-                            :
-                            <>
-                                <button onClick={handleEditMode}>Edit</button>
-                                <button onClick={deleteDeck}>Delete Deck</button>
-                            </>
-                        }
-                        <h4>Total Cards: {renderCardCount()}</h4>
-                        <img className="commanderImg" onClick={handleOpenModal} src={details.deck_img} alt={details?.commander} />
-                        <div >
-                            <h4>Contents: <button onClick={handleClickOpen('paper')}>Add Cards</button></h4>
+                        <div>
+                            <ThemeProvider theme={theme}><Button style={{ display: 'block', margin: '20px 0px 20px 15px' }} variant="contained" color="primary" size="small" onClick={handleClickOpen('paper')}>Add Cards</Button></ThemeProvider>
                             {details?.deck_contents?.data?.map((item, i) => {
                                 return <DeckItem key={i} item={item} />
                             })}
@@ -274,7 +515,7 @@ function DeckView() {
                     <Dialog
                         className="dialogBox"
                         fullWidth={true}
-                        maxWidth={'l'}
+                        maxWidth={'xl'}
                         open={open}
                         onClose={handleClose}
                         scroll={scroll}
@@ -282,17 +523,24 @@ function DeckView() {
                         aria-describedby="scroll-dialog-description"
                     >
                         <DialogContent sx={{ textAlign: 'center' }}>
-                            <div className="deckSearch">
+                            <Box className="deckSearch">
                                 <>
-                                    <h4>Add Cards:</h4>
-                                    <input
+                                    <h3>Add Cards:</h3>
+                                    <TextField
+                                        size="small"
+                                        variant="outlined"
                                         autoFocus
                                         placeholder="Search Here"
                                         value={searchValue}
                                         onChange={(event) => setSearchValue(event.target.value)}
+                                        style={{width: '250px'}}
                                     />
-                                    <button onClick={sendSearch}>Search</button>
-                                    <button onClick={handleClose}>Close Search</button>
+                                    <ThemeProvider theme={theme}>
+                                        <Stack direction={"row"} spacing={1} sx={{ display: 'block', marginTop: '10px' }}>
+                                            <Button variant="contained" color="primary" size="medium" onClick={sendSearch}>Search</Button>
+                                            <Button variant="contained" color="primary" size="medium" onClick={handleClose}>Close Search</Button>
+                                        </Stack>
+                                    </ThemeProvider>
                                 </>
                                 <>
                                     <p>{searchResult?.details}</p>
@@ -302,7 +550,7 @@ function DeckView() {
                                         )
                                     })}
                                 </>
-                            </div>
+                            </Box>
                         </DialogContent>
                     </Dialog>
                     <Modal
@@ -314,9 +562,6 @@ function DeckView() {
                         <div>
                             <Box sx={style}>
                                 <Grid container spacing={4} columns={16}>
-                                    <Grid item xs={16}>
-                                        <h3 className="deckImgName">{commander.name}</h3>
-                                    </Grid>
                                     <Grid item xs={8}>
                                         {!commander.image_uris ?
                                             <>
@@ -324,7 +569,7 @@ function DeckView() {
                                                     <div className="deckItemDiv">
                                                         <ImageListItem key={commander.id}>
                                                             <img
-                                                                className="deckImg"
+                                                                className="commanderImgDV"
                                                                 src={!commander.name ?
                                                                     details.deck_img
                                                                     :
@@ -359,7 +604,7 @@ function DeckView() {
                                                     :
                                                     <div>
                                                         <ImageListItem key={commander.id}>
-                                                            <img className="deckImg" src={!commander.name ? details.deck_img : commander?.card_faces[1]?.image_uris.normal} alt={commander.name} />
+                                                            <img className="commanderImgDV" src={!commander.name ? details.deck_img : commander?.card_faces[1]?.image_uris.normal} alt={commander.name} />
                                                             <ImageListItemBar
                                                                 title={commander.name}
                                                                 sx={{
@@ -388,31 +633,31 @@ function DeckView() {
                                             </>
                                             :
                                             <>
-                                                <img className="deckImg" src={!commander.name ? details.deck_img : commander.image_uris.normal} alt={commander.name} />
+                                                <img className="commanderImgDV" src={!commander.name ? details.deck_img : commander.image_uris.normal} alt={commander.name} />
                                             </>
                                         }
                                     </Grid>
                                     <Grid item xs={8}>
-                                        <div className="detailsContainer">
-                                            <h5 className="cardDetails">Owned:
+                                        <div className="detailsContainerDV">
+                                            <h3 className="cardDetails">Owned:
                                                 {checkCommanderInventory() > 0 ?
-                                                    <span style={{ color: 'green' }}> {checkCommanderInventory()}</span>
+                                                    <span style={{ color: 'green', fontWeight: 'normal' }}> {checkCommanderInventory()}</span>
                                                     :
-                                                    <span style={{ color: 'red' }}> {checkCommanderInventory()}</span>
-                                                }</h5>
-                                            <h5 className="cardDetails">Type: {commander.type_line}</h5>
-                                            <h5 className="cardDetails">Set: {commander.set_name}</h5>
-                                            <h5 className="cardDetails">Commander Legality:
+                                                    <span style={{ color: 'red', fontWeight: 'normal' }}> {checkCommanderInventory()}</span>
+                                                }</h3>
+                                            <h3 className="cardDetails">Type: <span style={{ fontWeight: 'normal' }}>{commander.type_line}</span></h3>
+                                            <h3 className="cardDetails">Set: <span style={{ fontWeight: 'normal' }}>{commander.set_name}</span></h3>
+                                            <h3 className="cardDetails">Commander Legality:
                                                 {commander?.legalities?.commander === 'legal' ?
-                                                    <span> {commander.legalities.commander}</span>
+                                                    <span style={{ fontWeight: 'normal' }}> {commander.legalities.commander}</span>
                                                     :
-                                                    <span style={{ color: 'red' }}> {commander?.legalities?.commander.replace(/_/g, " ")}</span>
+                                                    <span style={{ color: 'red', fontWeight: 'normal' }}> {commander?.legalities?.commander.replace(/_/g, " ")}</span>
                                                 }
-                                            </h5>
-                                            <h5 className="cardDetails">Prices:
-                                                <p className="cardDetails">Normal: ${commander?.prices?.usd !== null ? commander?.prices?.usd : '---'}</p>
-                                                <p className="cardDetails">Foil: ${commander?.prices?.usd_foil !== null ? commander?.prices?.usd_foil : '---'}</p>
-                                            </h5>
+                                            </h3>
+                                            <h3 className="cardDetails">Price:
+                                                <p className="cardDetails">Normal: <span style={{ fontWeight: 'normal' }}>${commander?.prices?.usd !== null ? commander?.prices?.usd : '---'}</span></p>
+                                                <p className="cardDetails">Foil: <span style={{ fontWeight: 'normal' }}>${commander?.prices?.usd_foil !== null ? commander?.prices?.usd_foil : '---'}</span></p>
+                                            </h3>
                                         </div>
                                     </Grid>
                                 </Grid>

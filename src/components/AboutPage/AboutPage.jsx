@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import './AboutPage.css'
 
 // This is one of our simplest components
 // It doesn't have local state,
@@ -16,8 +17,9 @@ function AboutPage() {
   return (
     <div className="container">
       <div>
-        <p>This is a Card Catalog and Deck builder all in one app!</p>
+        <p style={{ textAlign: 'center' }}>This is a Card Catalog and Deck builder all in one app!</p>
       </div>
+
     </div>
   );
 }
