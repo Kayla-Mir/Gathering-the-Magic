@@ -3,9 +3,7 @@ const axios = require('axios');
 const {
     rejectUnauthenticated,
 } = require('../modules/authentication-middleware');
-const encryptLib = require('../modules/encryption');
 const pool = require('../modules/pool');
-const userStrategy = require('../strategies/user.strategy');
 
 const router = express.Router();
 
@@ -17,8 +15,6 @@ router.get('/', rejectUnauthenticated, (req, res) => {
     `;
     pool.query(sqlText, [req.user.id])
         .then((dbRes) => {
-            console.log('dbRes********', dbRes.rows);
-
             res.send(dbRes.rows);
         })
         .catch((dbErr) => {
@@ -74,6 +70,7 @@ router.get('/:id', rejectUnauthenticated, (req, res) => {
         });
 });
 
+// gets the commander of a deck based on id
 router.get('/commander/:id', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         SELECT * FROM "user_decks"
@@ -83,14 +80,12 @@ router.get('/commander/:id', rejectUnauthenticated, (req, res) => {
     pool.query(sqlText, [req.user.id, req.params.id])
         .then((dbRes) => {
             const cardName = dbRes.rows[0]?.commander?.replace(/ /g, "+");
-            console.log('cardName fixed', cardName);
             // sends an axios request with the ids of the cards from the DB
             if (dbRes.rows[0].commander != null) {
                 axios({
                     method: 'GET',
                     url: `https://api.scryfall.com/cards/named?exact=${cardName}`
                 }).then((apiRes) => {
-                    console.log('apiRes', apiRes.data)
                     res.send(apiRes.data);
                 }).catch((apiErr) => {
                     console.error('GET api error', apiErr);
@@ -105,6 +100,7 @@ router.get('/commander/:id', rejectUnauthenticated, (req, res) => {
         });
 });
 
+// posts the new deck in the DB with a filler image thats stored in the public folder
 router.post('/', rejectUnauthenticated, (req, res) => {
     const cardPlaceholder = 'filler-card.png'
     const sqlText = `
@@ -126,6 +122,7 @@ router.post('/', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// updates the deck contents array with the card scryfall_id when a new card is added to the DB
 router.put('/contents', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         UPDATE "user_decks"
@@ -181,7 +178,9 @@ router.put('/contents', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// presentation cards to add to the deck
 const cardsToAdd = [
+    'bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd',
     '5d131784-c1a3-463e-a37b-b720af67ab62',
     '52705c53-883e-4b6a-9c08-3fa35f6f17d5',
     '44657ab1-0a6a-4a5f-9688-86f239083821',
@@ -212,6 +211,7 @@ const cardsToAdd = [
     '3184b138-1109-4195-9d96-4f190164e98b'
 ]
 
+// fills up the presentation deck with all the pre-chosen cards
 router.put('/contents/fill', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         UPDATE "user_decks"
@@ -250,6 +250,7 @@ router.put('/contents/fill', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// updates the deck name based on user input
 router.put('/name', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         UPDATE "user_decks"
@@ -288,6 +289,7 @@ router.put('/name', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// updates the commander when the user has chosen a new commander
 router.put('/commander', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         UPDATE "user_decks"
@@ -328,6 +330,7 @@ router.put('/commander', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// deletes a single cards in the deck contents based on scryfall_id
 router.delete('/', rejectUnauthenticated, (req, res) => {
     const cardToDelete = req.body.cardToDelete.id;
     const userId = req.user.id;
@@ -393,6 +396,7 @@ router.delete('/', rejectUnauthenticated, (req, res) => {
         })
 });
 
+// deletes the entire deck based on id
 router.delete('/:id', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         DELETE FROM "user_decks"

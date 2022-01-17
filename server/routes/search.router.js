@@ -1,8 +1,8 @@
 const { default: axios } = require('axios');
 const express = require('express');
-const pool = require('../modules/pool');
 const router = express.Router();
 
+// sends the search request to the API
 router.get('/:search', (req, res) => {
     axios({
         method: 'GET',

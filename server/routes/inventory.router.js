@@ -2,15 +2,12 @@ const express = require('express');
 const {
     rejectUnauthenticated,
 } = require('../modules/authentication-middleware');
-const encryptLib = require('../modules/encryption');
 const pool = require('../modules/pool');
-const userStrategy = require('../strategies/user.strategy');
 
 const router = express.Router();
 
-// Handles Ajax request for user information if user is authenticated
+// gets all the cards from the database for a single user
 router.get('/', rejectUnauthenticated, (req, res) => {
-    // Send back user object from the session (previously queried from the database)
     const sqlText = `
         SELECT * FROM "inventory"
             WHERE "user_id"=$1;
@@ -25,33 +22,33 @@ router.get('/', rejectUnauthenticated, (req, res) => {
         })
 });
 
-// Handles Ajax request for user information if user is authenticated
-router.get('/:id', rejectUnauthenticated, (req, res) => {
-    // Send back user object from the session (previously queried from the database)
-    const sqlText = `
-        SELECT * FROM "inventory"
-            WHERE "user_id"=$1
-                AND "scryfall_id"=$2;
-    `;
-    const sqlValues = [
-        req.user.id,
-        req.params.id
-    ]
-    console.log('sqlValues', sqlValues)
-    // the following is not working and i dont know why
-    pool.query(sqlText, [req.user.id, req.params.id])
-        .then((dbRes) => {
-            console.log('dbRes******', dbRes.rows);
-            res.send(dbRes.rows);
-        })
-        .catch((dbErr) => {
-            console.error('get db error', dbErr);
-            res.sendStatus(500);
-        })
-});
+// TODO: not being used investigate later????
 
+// router.get('/:id', rejectUnauthenticated, (req, res) => {
+//     const sqlText = `
+//         SELECT * FROM "inventory"
+//             WHERE "user_id"=$1
+//                 AND "scryfall_id"=$2;
+//     `;
+//     const sqlValues = [
+//         req.user.id,
+//         req.params.id
+//     ]
+//     console.log('sqlValues', sqlValues)
+//     // the following is not working and i dont know why
+//     pool.query(sqlText, [req.user.id, req.params.id])
+//         .then((dbRes) => {
+//             console.log('dbRes******', dbRes.rows);
+//             res.send(dbRes.rows);
+//         })
+//         .catch((dbErr) => {
+//             console.error('get db error', dbErr);
+//             res.sendStatus(500);
+//         })
+// });
+
+// adds a new card to the inventory in a paired down way
 router.post('/', rejectUnauthenticated, (req, res) => {
-    console.log('req.user', req.user)
     const card = req.body;
     const sqlText = `
         INSERT INTO "inventory" 
@@ -106,6 +103,7 @@ router.post('/', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// updates the inventory card with the new deck id
 router.put('/', rejectUnauthenticated, (req, res) => {
     const sqlText = `
         UPDATE "inventory"
@@ -118,7 +116,6 @@ router.put('/', rejectUnauthenticated, (req, res) => {
         req.user.id,
         req.body.card_id
     ]
-    console.log('sqlValues', sqlValues);
     pool.query(sqlText, sqlValues)
         .then((dbRes) => {
             res.sendStatus(201);
@@ -129,8 +126,8 @@ router.put('/', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// updates the inventory card with NULL as the deck id when the card is removed from the deck in deckView
 router.put('/deleteDeckId', rejectUnauthenticated, (req, res) => {
-    console.log('delete from inventory', req.body)
     const sqlText = `
         UPDATE "inventory"
             SET "deck_id"=NULL
@@ -151,6 +148,7 @@ router.put('/deleteDeckId', rejectUnauthenticated, (req, res) => {
         })
 })
 
+// deletes the inventory card from the DB
 router.delete('/', rejectUnauthenticated, (req, res) => {
     const cardToDelete = req.body.id
     const sqlText = `
