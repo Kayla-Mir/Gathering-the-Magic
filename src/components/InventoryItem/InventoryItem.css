@@ -13,3 +13,7 @@
     max-width: 275px;
     border-radius: 15px;
 }
+
+.illegalCardInv {
+    color: red;
+}

@@ -148,7 +148,6 @@ function InventoryItem({ item }) {
     const setNameOfDeck = () => {
         decks.map((deck) => {
             if (item.deck_id === deck.id) {
-                console.log('deckNameForItem', deckNameForItem);
                 setDeckNameForItem(deck.deck_name);
             }
         })
@@ -199,6 +198,14 @@ function InventoryItem({ item }) {
         return (count)
     }
 
+    const getStyle = () => {
+        if (item.legality === 'legal') {
+            return {color: 'black'};
+        } else {
+            return {color: 'red'};
+        }
+    }
+
     return (
         <>
             <TableRow
@@ -206,7 +213,7 @@ function InventoryItem({ item }) {
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
                 <HtmlTooltip title={<img className="hoverImg" src={item.img_url} alt={item.name} />}>
-                    <TableCell sx={{ fontSize: '16px' }} onClick={handleOpenModal}>{item.name}</TableCell>
+                    <TableCell sx={{ fontSize: '16px' }} style={getStyle()} onClick={handleOpenModal}>{item.name}</TableCell>
                 </HtmlTooltip>
                 <TableCell sx={{ fontSize: '16px' }} align="right">
                     {item.img_back_url ?
