@@ -138,210 +138,218 @@ function DeckItem({ item }) {
         let countAvailable = isCardInDeck();
         if (countAvailable === 0 && cardsToExport.length < 1) {
             if (item.type_line.indexOf('Basic') === -1) {
-                dispatch({
-                    type: 'ADD_TO_EXPORT',
-                    payload: item.name
-                })
+                const doubleSidedIndex = item.name.indexOf(' //')
+                if (doubleSidedIndex === -1) {
+                    dispatch({
+                        type: 'ADD_TO_EXPORT',
+                        payload: item.name
+                    })
+                } else {
+                    dispatch({
+                        type: 'ADD_TO_EXPORT',
+                        payload: item.name.slice(0, item.name.indexOf(' //'))
+                    })
+                }
             }
         }
     }
 
-    return (
-        <>
-            <div onClick={handleOpen} className={item.legalities.commander === 'legal' ? "deckResults" : "illegalCard"}>
-                {!item.image_uris ?
-                    <>
-                        {frontSide ?
-                            <div className="deckItemDiv">
-                                <ImageListItem key={item.id}>
-                                    <img  className="deckImgList" src={item.card_faces[0].image_uris.normal} alt={item.name} />
-                                    <ImageListItemBar
-                                        title={item.name}
-                                        sx={{
-                                            backgroundColor: 'grey',
-                                            opacity: 1,
-                                            width: 0,
-                                            top: '-61%',
-                                            left: '63%'
-                                        }}
-                                        actionIcon={
-                                            <IconButton onClick={flipImage}>
-                                                <AutorenewIcon
-                                                    fontSize="large"
-                                                    className="deckItemBtn"
-                                                    sx={{
-                                                        color: 'white',
-                                                        p: 2,
-                                                    }}
-                                                />
-                                            </IconButton>
-                                        }
-                                    />
-                                </ImageListItem>
-                            </div>
-                            :
-                            <div>
-                                <ImageListItem key={item.id}>
-                                    <img onClick={handleOpen} className="deckImgList" src={item.card_faces[1].image_uris.normal} alt={item.name} />
-                                    <ImageListItemBar
-                                        title={item.name}
-                                        sx={{
-                                            backgroundColor: 'grey',
-                                            opacity: 1,
-                                            width: 0,
-                                            top: '-61%',
-                                            left: '63%'
-                                        }}
-                                        actionIcon={
-                                            <IconButton onClick={flipImage}>
-                                                <AutorenewIcon
-                                                    fontSize="large"
-                                                    className="deckItemBtn"
-                                                    sx={{
-                                                        color: 'white',
-                                                        p: 2,
-                                                    }}
-                                                />
-                                            </IconButton>
-                                        }
-                                    />
-                                </ImageListItem>
-                            </div>
-                        }
-                    </>
-                    :
-                    <>
-                        <img onClick={handleOpen} className="deckImgList" src={item.image_uris.normal} alt={item.name} />
-                    </>
-                }
-            </div>
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <div>
-                    <Box sx={style}>
-                        <Grid container spacing={4} columns={16}>
-                            <Grid item xs={8}>
-                                {!item.image_uris ?
-                                    <>
-                                        {frontSide ?
-                                            <div className="deckItemDiv">
-                                                <ImageListItem key={item.id}>
-                                                    <img className="deckModalImg" src={item.card_faces[0].image_uris.normal} alt={item.name} />
-                                                    <ImageListItemBar
-                                                        title={item.name}
+        return (
+            <>
+                <div onClick={handleOpen} className={item.legalities.commander === 'legal' ? "deckResults" : "illegalCard"}>
+                    {!item.image_uris ?
+                        <>
+                            {frontSide ?
+                                <div className="deckItemDiv">
+                                    <ImageListItem key={item.id}>
+                                        <img className="deckImgList" src={item.card_faces[0].image_uris.normal} alt={item.name} />
+                                        <ImageListItemBar
+                                            title={item.name}
+                                            sx={{
+                                                backgroundColor: 'grey',
+                                                opacity: 1,
+                                                width: 0,
+                                                top: '-61%',
+                                                left: '63%'
+                                            }}
+                                            actionIcon={
+                                                <IconButton onClick={flipImage}>
+                                                    <AutorenewIcon
+                                                        fontSize="large"
+                                                        className="deckItemBtn"
                                                         sx={{
-                                                            backgroundColor: 'grey',
-                                                            opacity: 1,
-                                                            width: 0,
-                                                            top: '-61%',
-                                                            left: '80%'
+                                                            color: 'white',
+                                                            p: 2,
                                                         }}
-                                                        actionIcon={
-                                                            <IconButton onClick={flipImage}>
-                                                                <AutorenewIcon
-                                                                    fontSize="large"
-                                                                    className="deckItemBtn"
-                                                                    sx={{
-                                                                        color: 'white',
-                                                                        p: 2,
-                                                                    }}
-                                                                />
-                                                            </IconButton>
-                                                        }
                                                     />
-                                                </ImageListItem>
-                                            </div>
-                                            :
-                                            <div>
-                                                <ImageListItem key={item.id}>
-                                                    <img className="deckModalImg" src={item.card_faces[1].image_uris.normal} alt={item.name} />
-                                                    <ImageListItemBar
-                                                        title={item.name}
-                                                        sx={{
-                                                            backgroundColor: 'grey',
-                                                            opacity: 1,
-                                                            width: 0,
-                                                            top: '-61%',
-                                                            left: '80%'
-                                                        }}
-                                                        actionIcon={
-                                                            <IconButton onClick={flipImage}>
-                                                                <AutorenewIcon
-                                                                    fontSize="large"
-                                                                    className="deckItemBtn"
-                                                                    sx={{
-                                                                        color: 'white',
-                                                                        p: 2,
-                                                                    }}
-                                                                />
-                                                            </IconButton>
-                                                        }
-                                                    />
-                                                </ImageListItem>
-                                            </div>
-                                        }
-                                    </>
-                                    :
-                                    <>
-                                        <img className="deckModalImg" src={item.image_uris.normal} alt={item.name} />
-                                    </>
-                                }
-                            </Grid>
-                            <Grid item xs={8}>
-                                <div className="detailsContainerDI">
-                                    <h3 className="cardDetails">Owned:
-                                        {checkInventory() > 0 ?
-                                            <span style={{ color: 'green', fontWeight: 'normal' }}> {checkInventory()}</span>
-                                            :
-                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {checkInventory()}</span>
-                                        }
-                                    </h3>
-                                    <h3 className="cardDetails">Available:
-                                        {countCardsAvailable() > 0 ?
-                                            <span style={{ color: 'green', fontWeight: 'normal' }}> {countCardsAvailable()}</span>
-                                            :
-                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {countCardsAvailable()}</span>
-                                        }
-                                    </h3>
-                                    <h3 className="cardDetails">In Deck:
-                                        {isCardInDeck() > 0 ?
-                                            <span style={{ color: 'green', fontWeight: 'normal' }}> ✅</span>
-                                            :
-                                            <span style={{ color: 'red', fontWeight: 'normal' }}> ❌</span>
-                                        }
-                                    </h3>
-                                    <h3 className="cardDetails">Type: <span style={{ fontWeight: 'normal' }}>{item.type_line}</span></h3>
-                                    <h3 className="cardDetails">Set: <span style={{ fontWeight: 'normal' }}>{item.set_name}</span></h3>
-                                    <h3 className="cardDetails">Commander Legality:
-                                        {item.legalities.commander === 'legal' ?
-                                            <span style={{ fontWeight: 'normal' }}> {item.legalities.commander}</span>
-                                            :
-                                            <span style={{ color: 'red', fontWeight: 'normal' }}> {item.legalities.commander.replace(/_/g, " ")}</span>
-                                        }
-                                    </h3>
-                                    <h3 className="cardDetails">Prices:
-                                        <p className="cardDetails">Normal: <span style={{ fontWeight: 'normal' }}>${item.prices.usd !== null ? item.prices.usd : '---'}</span></p>
-                                        <p className="cardDetails">Foil: <span style={{ fontWeight: 'normal' }}>${item.prices.usd_foil !== null ? item.prices.usd_foil : '---'}</span></p>
-                                    </h3>                                <ThemeProvider theme={theme}>
-                                    <Tooltip title="Delete From Deck" placement="right">
-                                        <IconButton className="modalDltBtn" color="error">
-                                            <DeleteForeverIcon sx={{ fontSize: 35 }} onClick={updateInventory} />
-                                        </IconButton>
-                                    </Tooltip>
-                                </ThemeProvider>
+                                                </IconButton>
+                                            }
+                                        />
+                                    </ImageListItem>
                                 </div>
-                            </Grid>
-                        </Grid>
-                    </Box>
+                                :
+                                <div>
+                                    <ImageListItem key={item.id}>
+                                        <img onClick={handleOpen} className="deckImgList" src={item.card_faces[1].image_uris.normal} alt={item.name} />
+                                        <ImageListItemBar
+                                            title={item.name}
+                                            sx={{
+                                                backgroundColor: 'grey',
+                                                opacity: 1,
+                                                width: 0,
+                                                top: '-61%',
+                                                left: '63%'
+                                            }}
+                                            actionIcon={
+                                                <IconButton onClick={flipImage}>
+                                                    <AutorenewIcon
+                                                        fontSize="large"
+                                                        className="deckItemBtn"
+                                                        sx={{
+                                                            color: 'white',
+                                                            p: 2,
+                                                        }}
+                                                    />
+                                                </IconButton>
+                                            }
+                                        />
+                                    </ImageListItem>
+                                </div>
+                            }
+                        </>
+                        :
+                        <>
+                            <img onClick={handleOpen} className="deckImgList" src={item.image_uris.normal} alt={item.name} />
+                        </>
+                    }
                 </div>
-            </Modal>
+                <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                >
+                    <div>
+                        <Box sx={style}>
+                            <Grid container spacing={4} columns={16}>
+                                <Grid item xs={8}>
+                                    {!item.image_uris ?
+                                        <>
+                                            {frontSide ?
+                                                <div className="deckItemDiv">
+                                                    <ImageListItem key={item.id}>
+                                                        <img className="deckModalImg" src={item.card_faces[0].image_uris.normal} alt={item.name} />
+                                                        <ImageListItemBar
+                                                            title={item.name}
+                                                            sx={{
+                                                                backgroundColor: 'grey',
+                                                                opacity: 1,
+                                                                width: 0,
+                                                                top: '-61%',
+                                                                left: '80%'
+                                                            }}
+                                                            actionIcon={
+                                                                <IconButton onClick={flipImage}>
+                                                                    <AutorenewIcon
+                                                                        fontSize="large"
+                                                                        className="deckItemBtn"
+                                                                        sx={{
+                                                                            color: 'white',
+                                                                            p: 2,
+                                                                        }}
+                                                                    />
+                                                                </IconButton>
+                                                            }
+                                                        />
+                                                    </ImageListItem>
+                                                </div>
+                                                :
+                                                <div>
+                                                    <ImageListItem key={item.id}>
+                                                        <img className="deckModalImg" src={item.card_faces[1].image_uris.normal} alt={item.name} />
+                                                        <ImageListItemBar
+                                                            title={item.name}
+                                                            sx={{
+                                                                backgroundColor: 'grey',
+                                                                opacity: 1,
+                                                                width: 0,
+                                                                top: '-61%',
+                                                                left: '80%'
+                                                            }}
+                                                            actionIcon={
+                                                                <IconButton onClick={flipImage}>
+                                                                    <AutorenewIcon
+                                                                        fontSize="large"
+                                                                        className="deckItemBtn"
+                                                                        sx={{
+                                                                            color: 'white',
+                                                                            p: 2,
+                                                                        }}
+                                                                    />
+                                                                </IconButton>
+                                                            }
+                                                        />
+                                                    </ImageListItem>
+                                                </div>
+                                            }
+                                        </>
+                                        :
+                                        <>
+                                            <img className="deckModalImg" src={item.image_uris.normal} alt={item.name} />
+                                        </>
+                                    }
+                                </Grid>
+                                <Grid item xs={8}>
+                                    <div className="detailsContainerDI">
+                                        <h3 className="cardDetails">Owned:
+                                            {checkInventory() > 0 ?
+                                                <span style={{ color: 'green', fontWeight: 'normal' }}> {checkInventory()}</span>
+                                                :
+                                                <span style={{ color: 'red', fontWeight: 'normal' }}> {checkInventory()}</span>
+                                            }
+                                        </h3>
+                                        <h3 className="cardDetails">Available:
+                                            {countCardsAvailable() > 0 ?
+                                                <span style={{ color: 'green', fontWeight: 'normal' }}> {countCardsAvailable()}</span>
+                                                :
+                                                <span style={{ color: 'red', fontWeight: 'normal' }}> {countCardsAvailable()}</span>
+                                            }
+                                        </h3>
+                                        <h3 className="cardDetails">In Deck:
+                                            {isCardInDeck() > 0 ?
+                                                <span style={{ color: 'green', fontWeight: 'normal' }}> ✅</span>
+                                                :
+                                                <span style={{ color: 'red', fontWeight: 'normal' }}> ❌</span>
+                                            }
+                                        </h3>
+                                        <h3 className="cardDetails">Type: <span style={{ fontWeight: 'normal' }}>{item.type_line}</span></h3>
+                                        <h3 className="cardDetails">Set: <span style={{ fontWeight: 'normal' }}>{item.set_name}</span></h3>
+                                        <h3 className="cardDetails">Commander Legality:
+                                            {item.legalities.commander === 'legal' ?
+                                                <span style={{ fontWeight: 'normal' }}> {item.legalities.commander}</span>
+                                                :
+                                                <span style={{ color: 'red', fontWeight: 'normal' }}> {item.legalities.commander.replace(/_/g, " ")}</span>
+                                            }
+                                        </h3>
+                                        <h3 className="cardDetails">Prices:
+                                            <p className="cardDetails">Normal: <span style={{ fontWeight: 'normal' }}>${item.prices.usd !== null ? item.prices.usd : '---'}</span></p>
+                                            <p className="cardDetails">Foil: <span style={{ fontWeight: 'normal' }}>${item.prices.usd_foil !== null ? item.prices.usd_foil : '---'}</span></p>
+                                        </h3>                                <ThemeProvider theme={theme}>
+                                            <Tooltip title="Delete From Deck" placement="right">
+                                                <IconButton className="modalDltBtn" color="error">
+                                                    <DeleteForeverIcon sx={{ fontSize: 35 }} onClick={updateInventory} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </ThemeProvider>
+                                    </div>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </div>
+                </Modal>
 
-        </>
-    )
-}
+            </>
+        )
+    }
 
-export default DeckItem;
+    export default DeckItem;

@@ -141,7 +141,7 @@ function DeckView() {
         // handleRefresh(),
         getDetails();
         getGraphData();
-    }, [params.id, details?.deck_contents?.data])
+    }, [params.id])
 
     // handles edit mode for the name of the deck
     const handleEditMode = () => {
@@ -259,7 +259,7 @@ function DeckView() {
     const downloadTxtFile = () => {
         const element = document.createElement("a");
         for (let cardToExport of cardsExport) {
-            rows.push(`\n\ ${cardToExport} x1`)
+            rows.push(`\n\ 1 ${cardToExport}`)
         }
         const file = new Blob(rows, { type: 'text/plain' });
         element.href = URL.createObjectURL(file);

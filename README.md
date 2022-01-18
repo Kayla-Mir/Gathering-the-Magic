@@ -1,121 +1,119 @@
+# Gathering the Magic
 
-# EDA Project
-This version uses React, Redux, Express, Passport, and PostgreSQL (a full list of dependencies can be found in `package.json`).
+## Description
 
-We **STRONGLY** recommend following these instructions carefully. It's a lot, and will take some time to set up, but your life will be much easier this way in the long run.
+*Duration: Two Week Sprint*
 
-## Use the Template for This Repository (Don't Clone)
+This app is a react inventory management tool and deck creator for Commander(EDH) Magic the Gathering players. Users can search for cards using the Scryfall API. Making an account lets users save those cards to their inventory and put them into decks that they build. Users can see all of their cards in the inventory in an easy to read table. They can also see all of their decks on the Deck Page, clicking on one will bring them to the individual deck with all of the cards in it and a doughnut chart to show them the colors of that deck.
 
-- Don't Fork or Clone. Instead, click the `Use this Template` button, and make a copy to your personal account.
+## Screen Shots
+___
+### Search Page
 
+Displays the search results with the option to add 1 or more to your inventory. Clicking on a card will open a modal with more details.
 
-## Prerequisites
+![Screenshot](./public/Images/SearchPage.png)
 
-Before you get started, make sure you have the following software installed on your computer:
+### Inventory
+
+Shows the user all of their cards with set, colors, type, etc also being displayed. Clicking on the name of the card will bring up a modal with more information if there is any. If a card isn't legal for Commander format the name will be displayed in red. Here users can also assign their cards to decks by hitting the plus icon and choosing the deck from a drop down and delete a card from their inventory.
+
+![Screenshot](./public/Images/Inventory.png)
+
+### Decks Page
+
+On the Decks Page users can see all of their deck ideas in one place. The name of the deck and the commander image are displayed here. Clicking on an image will bring them to the details view for that deck.
+
+![Screenshot](./public/Images/DeckPage.png)
+
+### Deck Details
+
+On this page users can quickly and easily see their deck contents, add more cards to their deck, set/change the commander, see the color breakdown of their deck, export unowned cards to a .txt file and edit the name of the deck. Clicking on a card will open a modal with information about that card (see below screenshot).
+
+![Screenshot](./public/Images/DetailedDeckView.png)
+
+### Deck View Modal
+
+Here users can see if they own the card, how many are available, and if the card was added from the inventory. Other information is available too such as type, set, legality, and price information.
+
+![Screenshot](./public/Images/AltCardModal.png)
+
+### Prerequisites
+
+Link to documentation of software that I used.
 
 - [Node.js](https://nodejs.org/en/)
-- [PostrgeSQL](https://www.postgresql.org/)
-- [Nodemon](https://nodemon.io/)
+- [Redux.js](https://redux.js.org/)
+- [MaterialUI](https://mui.com/)
+- [Scryfall API](https://scryfall.com/docs/api)
+- [Chart.js](https://www.chartjs.org/docs/latest/)
+- [React Hot Toast](https://react-hot-toast.com/docs)
 
-## Create database and table
+## Installation
+___
 
-Create a new database called `prime_app` and create a `user` table:
+1. Create a database called ```solo_project```.
+2. The queries in the database.sql file are set up to create all the necessary tables and populate the needed data to allow the application to run correctly. The project is built on [PostgreSQL](https://www.postgresql.org/download/), so you will need to make sure to have that installed. We recommend using [Postico](https://eggerapps.at/postico/) if you are using a Mac to run those queries as that was used to create the queries.
+3. Open the project using your editor of choice and run ```npm install``` in the terminal.
+4. Run ```npm run server``` in the terminal to start the server.
+5. Run ```npm run client``` in the terminal to start the client.
+6. Your browser will open a new tab with the project loaded!
 
-```SQL
-CREATE TABLE "user" (
-    "id" SERIAL PRIMARY KEY,
-    "username" VARCHAR (80) UNIQUE NOT NULL,
-    "password" VARCHAR (1000) NOT NULL
-);
-```
+## Usage
+___
 
-If you would like to name your database something else, you will need to change `prime_app` to the name of your new database name in `server/modules/pool.js`
+### Searching for Cards
 
-## Development Setup Instructions
+1. When you first come to the app you won't have to log in to search for cards. 
+2. Click on a card to open up a modal view with more information about that card (type, set, legality, cost).
+3. Logging in/registering will allow you to save those cards from the search in your Inventory. 
+4. You can choose to add more than one card at a time using the drop down at the bottom of the card to select a number and then hitting the 'Add to Inventory' button.
 
-- Run `npm install`
-- Create a `.env` file at the root of the project and paste this line into the file:
-  ```
-  SERVER_SESSION_SECRET=superDuperSecret
-  ```
-  While you're in your new `.env` file, take the time to replace `superDuperSecret` with some long random string like `25POUbVtx6RKVNWszd9ERB9Bb6` to keep your application secure. Here's a site that can help you: [https://passwordsgenerator.net/](https://passwordsgenerator.net/). If you don't do this step, create a secret with less than eight characters, or leave it as `superDuperSecret`, you will get a warning.
-- Start postgres if not running already by using `brew services start postgresql`
-- Run `npm run server`
-- Run `npm run client`
-- Navigate to `localhost:3000`
+### Inventory Page
 
-## Debugging
+1. Here you can click on a cards name and a modal will open with information about the card. 
+2. If the card is double sided there will be a flip icon on top of the image (this applies to any modal or image of a card almost anywhere on the app). Click the icon to turn the card over so the back can be seen.
+3. On the main table click the plus icon on the right of the table to open up a small box asking which deck you would like to add that card to.
+4. There will be a drop down with all of your available deck names. Choose one and hit the checkmark to add that card to the deck contents of that deck.
 
-To debug, you will need to run the client-side separately from the server. Start the client by running the command `npm run client`. Start the debugging server by selecting the Debug button.
+### Decks Page
 
-![VSCode Toolbar](documentation/images/vscode-toolbar.png)
+1. Hitting the 'Your Decks' link at the top of the page will bring you to an overall view of your decks. 
+2. Here you can see your decks displayed with their name and chosen commander as the image.
+3. Click on the image of a deck to see more information about that deck.
 
-Then make sure `Launch Program` is selected from the dropdown, then click the green play arrow.
+### Detailed Deck View
 
-![VSCode Debug Bar](documentation/images/vscode-debug-bar.png)
+1. The commander is displayed at the top of the page along with the name of the deck. 
+2. The name of the deck can be changed by hitting the 'Edit' button, then type the new name into the input and hit save.
+3. You can see the total amount of cards in that deck and also a breakdown of the colors using the doughnut chart.
+4. Click on the 'Add Cards' button to open a dialog box to search for cards. 
+5. Once you search for a card you have the option to set it as your commander or hit the add icon.
+6. Clicking on the add icon will pop open a menu with 'Add from Inventory' or 'Add to deck'. Adding from your inventory will assign that card to the deck the same way it does in the inventory table. Add to deck will put that card in your deck as an unowned card.
+7. Once your deck is all built and you are happy with the contents. Click on the 'Export Unowned Cards' button to open a .txt file with all the cards you don't own. You can take this list to a local game store to buy the cards or to an online website such as [TCGPlayer's Mass Entry](https://www.tcgplayer.com/massentry).
 
-## Testing Routes with Postman
+## Built With
+___
 
-To use Postman with this repo, you will need to set up requests in Postman to register a user and login a user at a minimum.
+- Javascript
+- React
+- Redux
+- Node.js
+- Axios
+- PostgreSQL
+- MaterialUI
+- Sweetalert
+- Chart.JS
+- React Hot Toast
+- Scryfall API
+- HTML/CSS
 
-Keep in mind that once you using the login route, Postman will manage your session cookie for you just like a browser, ensuring it is sent with each subsequent request. If you delete the `localhost` cookie in Postman, it will effectively log you out.
+## Acknowledgement
+___
 
-1. Start the server - `npm run server`
-2. Import the sample routes JSON file [v2](./PostmanPrimeSoloRoutesv2.json) by clicking `Import` in Postman. Select the file.
-3. Click `Collections` and `Send` the following three calls in order:
-   1. `POST /api/user/register` registers a new user, see body to change username/password
-   2. `POST /api/user/login` will login a user, see body to change username/password
-   3. `GET /api/user` will get user information, by default it's not very much
+Thanks to Prime Digital Academy who equipped and helped me to make this application a reality. Special thanks to my instructor [Matthew Black](https://github.com/matthew-black)!
 
-After running the login route above, you can try any other route you've created that requires a logged in user!
+## Support
+___
 
-## Production Build
-
-Before pushing to Heroku, run `npm run build` in terminal. This will create a build folder that contains the code Heroku will be pointed at. You can test this build by typing `npm start`. Keep in mind that `npm start` will let you preview the production build but will **not** auto update.
-
-- Start postgres if not running already by using `brew services start postgresql`
-- Run `npm start`
-- Navigate to `localhost:5000`
-
-## Lay of the Land
-
-There are a few videos linked below that show a walkthrough the client and sever setup to help acclimatize to the boilerplate. Please take some time to watch the videos in order to get a better understanding of what the boilerplate is like.
-
-- [Initial Set](https://vimeo.com/453297271)
-- [Server Walkthrough](https://vimeo.com/453297212)
-- [Client Walkthrough](https://vimeo.com/453297124)
-
-Directory Structure:
-
-- `src/` contains the React application
-- `public/` contains static assets for the client-side
-- `build/` after you build the project, contains the transpiled code from `src/` and `public/` that will be viewed on the production site
-- `server/` contains the Express App
-
-This code is also heavily commented. We recommend reading through the comments, getting a lay of the land, and becoming comfortable with how the code works before you start making too many changes. If you're wondering where to start, consider reading through component file comments in the following order:
-
-- src/components
-  - App/App
-  - Footer/Footer
-  - Nav/Nav
-  - AboutPage/AboutPage
-  - InfoPage/InfoPage
-  - UserPage/UserPage
-  - LoginPage/LoginPage
-  - RegisterPage/RegisterPage
-  - LogOutButton/LogOutButton
-  - ProtectedRoute/ProtectedRoute
-
-## Deployment
-
-1. Create a new Heroku project
-1. Link the Heroku project to the project GitHub Repo
-1. Create an Heroku Postgres database
-1. Connect to the Heroku Postgres database from Postico
-1. Create the necessary tables
-1. Add an environment variable for `SERVER_SESSION_SECRET` with a nice random string for security
-1. In the deploy section, select manual deploy
-
-## Update Documentation
-
-Customize this ReadMe and the code comments in this project to read less like a starter repo and more like a project. Here is an example: https://gist.github.com/PurpleBooth/109311bb0361f32d87a2
+If you have suggestions or issues, please email me at [kayla.mir32@gmail.com](mailto:kayla.mir32@gmail.com).  
