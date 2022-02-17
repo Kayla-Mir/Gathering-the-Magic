@@ -6,6 +6,10 @@
 
 This app is a react inventory management tool and deck creator for Commander(EDH) Magic the Gathering players. Users can search for cards using the Scryfall API. Making an account lets users save those cards to their inventory and put them into decks that they build. Users can see all of their cards in the inventory in an easy to read table. They can also see all of their decks on the Deck Page, clicking on one will bring them to the individual deck with all of the cards in it and a doughnut chart to show them the colors of that deck.
 
+## Deployed Version
+
+[Gathering the Magic](https://gathering-the-magic.herokuapp.com/)
+
 ## Screen Shots
 ___
 ### Search Page
